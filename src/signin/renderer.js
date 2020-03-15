@@ -8,6 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('next')
     const profile = document.getElementById('profile')
     const input = document.getElementById('input')
+    const profilePicture = document.getElementById('profilePicture')
 
     ipcRenderer.on('auth', async (event, message) => {
         console.log(message)
@@ -76,9 +77,11 @@ window.addEventListener('DOMContentLoaded', () => {
         button.innerHTML = 'Open'
         button.style.display = ''
         input.style.display='none'
+    })
 
-        console.log(myInfo)
-        console.log('[IMG]')
-        console.log(myInfo.photo)
+    ipcRenderer.on('photo', (event, path) => {
+        console.log("PHOTO RECIEVED")
+        console.log(path)
+        profilePicture.src = path
     })
 })
