@@ -1,0 +1,35 @@
+{
+  "name": "airgram-js-example",
+  "version": "0.0.0",
+  "description": "Basic usage of Airgram with JavaScript",
+  "homepage": "https://airgram.io",
+  "main": "src/index.js",
+  "keywords": [
+    "TeleDrive",
+    "telegram",
+    "telegram client",
+    "tdlib"
+  ],
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Alexander Krisko",
+  "license": "GPL-3.0",
+  "repository": "https://github.com/airgram/airgram-js-example",
+  "dependencies": {
+    "airgram": "^2.0.0-next.2"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^1.4.0",
+    "electron": "^8.1.1",
+    "eslint": "^6.3.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "nodemon": "^1.18.9"
+  },
+  "private": true
+}
