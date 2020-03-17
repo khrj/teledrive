@@ -75,6 +75,9 @@ window.addEventListener('DOMContentLoaded', () => {
         description.innerHTML = 'Select the location for <br> your synced folder'
         description.style.display = ''
         button.innerHTML = 'Open'
+        button.addEventListener('click', () => {
+            ipcRenderer.send('openFileDialog')
+        })
         button.style.display = ''
         input.style.display='none'
     })
@@ -83,5 +86,12 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log("PHOTO RECIEVED")
         console.log(path)
         profilePicture.src = path
+    })
+
+    ipcRenderer.on('selectedDir', (event, path) => {
+        console.log('selectedDir', path)
+        title.innerHTML = 'Setup Successfully'
+        description.innerHTML = 'Currently syncing <br>' + path
+        button.innerHTML = 'Change'
     })
 })
