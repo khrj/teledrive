@@ -14,6 +14,8 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log(message)
         if (message === 'phoneNumber') {
             ensureVisible()
+            description.innerHTML = 'Please enter your phone number<br>in international format.'
+            input.placeholder = 'Phone Number'
             ipcRenderer.send('phoneNumber', await getInput())
         } else if (message === 'authCode') {
             ensureVisible()
@@ -66,11 +68,17 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    ipcRenderer.on('authSuccess', (event, myInfo) => {
-        title.innerHTML = 'Login Successful'
-        profile.style.display = ''
+    ipcRenderer.on('updateMyInfo', (event, myInfo) => {
         name.innerHTML = myInfo.name
         number.innerHTML = myInfo.number
+        if (myInfo.photo) {
+            profilePicture.src = myInfo.photo
+        }
+    })
+
+    ipcRenderer.on('authSuccess', () => {
+        title.innerHTML = 'Login Successful'
+        profile.style.display = ''
 
         description.innerHTML = 'Select the location for <br> your synced folder'
         description.style.display = ''
@@ -80,12 +88,6 @@ window.addEventListener('DOMContentLoaded', () => {
         })
         button.style.display = ''
         input.style.display='none'
-    })
-
-    ipcRenderer.on('photo', (event, path) => {
-        console.log("PHOTO RECIEVED")
-        console.log(path)
-        profilePicture.src = path
     })
 
     ipcRenderer.on('selectedDir', (event, path) => {
