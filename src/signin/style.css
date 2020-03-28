@@ -127,3 +127,16 @@ body {
     margin-right: 35px;
     color: gray;
 }
+
+#credits {
+    position: fixed;
+    bottom: 8px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    color: #707579;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+#credits > a {
+    color: #707579;
+}
