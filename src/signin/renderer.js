@@ -9,6 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const profile = document.getElementById('profile')
     const input = document.getElementById('input')
     const profilePicture = document.getElementById('profilePicture')
+    const syncButton = document.getElementById('reDownload')
 
     ipcRenderer.on('auth', async (event, message) => {
         console.log(message)
@@ -83,9 +84,11 @@ window.addEventListener('DOMContentLoaded', () => {
         description.innerHTML = 'Select the location for <br> your synced folder'
         description.style.display = ''
         button.innerHTML = 'Open'
+
         button.addEventListener('click', () => {
             ipcRenderer.send('openFileDialog')
         })
+
         button.style.display = ''
         input.style.display='none'
     })
@@ -94,6 +97,11 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log('selectedDir', path)
         title.innerHTML = 'Setup Successfully'
         description.innerHTML = 'Currently syncing <br>' + path
-        button.innerHTML = 'Change'
+        button.innerHTML = 'CHANGE (WIP)'
+        syncButton.style.display = ''
+        syncButton.addEventListener('click', () => {
+            ipcRenderer.send('syncAll')
+            syncButton.innerHTML = 'SYNCING'
+        })
     })
 })

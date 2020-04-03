@@ -140,3 +140,23 @@ body {
 #credits > a {
     color: #707579;
 }
+
+#reDownload {
+    padding: 10px;
+    display: flex;
+    position: fixed;
+    bottom: 30px;
+    right: 15px;
+    border-radius: 15px;
+    height: 50px;
+    line-height: 1.8rem;
+    font-family: "Open Sans", "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+#reDownload > div {
+    padding-left: 10px;
+}
+
+#reDownload:hover {
+    background-color: rgba(198, 40, 40, 0.33);
+}
