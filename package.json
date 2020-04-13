@@ -1,35 +1,73 @@
 {
-  "name": "airgram-js-example",
-  "version": "0.0.0",
-  "description": "Basic usage of Airgram with JavaScript",
-  "homepage": "https://airgram.io",
-  "main": "src/index.js",
-  "keywords": [
-    "TeleDrive",
-    "telegram",
-    "telegram client",
-    "tdlib"
-  ],
-  "scripts": {
-    "start": "electron ."
-  },
-  "author": "Alexander Krisko",
-  "license": "GPL-3.0",
-  "repository": "https://github.com/airgram/airgram-js-example",
-  "dependencies": {
-    "airgram": "^2.0.0-next.2"
-  },
-  "devDependencies": {
-    "dotenv-cli": "^1.4.0",
-    "electron": "^8.1.1",
-    "eslint": "^6.3.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-friendly-formatter": "^4.0.1",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "nodemon": "^1.18.9"
-  },
-  "private": true
+    "name": "TeleDrive",
+    "productName": "TeleDrive",
+    "version": "0.0.5",
+    "description": "Uses TDlib and Airgram to create a Google Backup and Sync style uploader.",
+    "homepage": "https://khushrajrathod.github.io/TeleDrive",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "electron-forge start",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "publish": "electron-forge publish",
+        "lint": "echo \"No linting configured\""
+    },
+    "keywords": [
+        "TeleDrive",
+        "telegram",
+        "telegram client",
+        "tdlib"
+    ],
+    "author": {
+        "name": "Khushraj Rathod",
+        "email": "khushrajrathod@gmail.com"
+    },
+    "license": "UNLICENSED",
+    "repository": "https://github.com/KhushrajRathod/TeleDrive",
+    "config": {
+        "forge": {
+            "packagerConfig": {},
+            "makers": [
+                {
+                    "name": "@electron-forge/maker-squirrel",
+                    "config": {
+                        "name": "teledrive"
+                    }
+                },
+                {
+                    "name": "@electron-forge/maker-zip",
+                    "platforms": [
+                        "darwin"
+                    ]
+                },
+                {
+                    "name": "@electron-forge/maker-deb",
+                    "config": {}
+                },
+                {
+                    "name": "@electron-forge/maker-rpm",
+                    "config": {}
+                },
+                {
+                    "name": "@electron-forge/maker-dmg",
+                    "config": {}
+                }
+            ]
+        }
+    },
+    "dependencies": {
+        "airgram": "^2.0.0-next.2",
+        "chokidar": "latest",
+        "electron-squirrel-startup": "^1.0.0",
+        "electron-store": "^5.1.1"
+    },
+    "devDependencies": {
+        "@electron-forge/cli": "6.0.0-beta.50",
+        "@electron-forge/maker-deb": "6.0.0-beta.50",
+        "@electron-forge/maker-dmg": "^6.0.0-beta.50",
+        "@electron-forge/maker-rpm": "6.0.0-beta.50",
+        "@electron-forge/maker-squirrel": "6.0.0-beta.50",
+        "@electron-forge/maker-zip": "6.0.0-beta.50",
+        "electron": "^8.2.0"
+    }
 }
