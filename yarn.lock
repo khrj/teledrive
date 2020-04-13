@@ -2,8 +2,11 @@
 # yarn lockfile v1
 
 
-airgram-js-example@0.0.0:
-  version "0.0.0"
+TeleDrive@0.0.5:
+  version "0.0.5"
   dependencies:
     airgram "^2.0.0-next.2"
+    chokidar latest
+    electron-squirrel-startup "^1.0.0"
+    electron-store "^5.1.1"
 
