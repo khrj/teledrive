@@ -1,5 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+
+
 const { authenticate, create, updateInfo } = require(path.join(__dirname, 'telegram-binder'))
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -33,7 +35,7 @@ app.on('ready', async () => {
     // noinspection ES6MissingAwait
     createWindow()
     authenticate(client, mainWindow)
-    //await updateInfo(await client, mainWindow)
+    updateInfo(client, mainWindow)
 
     app.on('activate', async () => {
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -48,6 +50,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
-
-

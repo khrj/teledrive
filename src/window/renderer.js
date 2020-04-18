@@ -11,15 +11,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const profilePicture = document.getElementById('profilePicture')
     const syncButton = document.getElementById('reDownload')
 
+    const ensureVisible  = () => {
+        description.style.display = '' // Setting display to '' resets display to initial state
+        button.style.display = ''
+        input.style.display = ''
+        input.type = ''
+        title.innerHTML = 'Sign in to TeleDrive'
+    }
+
     ipcRenderer.on('auth', async (event, message) => {
         console.log(message)
-        const ensureVisible  = () => {
-            description.style.display = '' // Setting display to '' resets display to initial state
-            button.style.display = ''
-            input.style.display = ''
-            input.type = ''
-            title.innerHTML = 'Sign in to TeleDrive'
-        }
 
         const getInput = () => {
             const modifyUI = () => {
@@ -70,6 +71,8 @@ window.addEventListener('DOMContentLoaded', () => {
     })
 
     ipcRenderer.on('updateMyInfo', (event, myInfo) => {
+        console.log("Updating info,")
+        console.log(myInfo)
         name.innerHTML = myInfo.name
         number.innerHTML = myInfo.number
         if (myInfo.photo) {
