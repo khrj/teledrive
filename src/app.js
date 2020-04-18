@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
 
@@ -25,6 +25,11 @@ const createWindow = async () => {
 
         await window.loadFile(path.join(__dirname, 'window', 'index.html'));
         window.webContents.openDevTools();
+        window.webContents.on('new-window', function (event, url) {
+            event.preventDefault()
+            // noinspection JSIgnoredPromiseFromCall
+            shell.openExternal(url)
+        })
 
         resolve(window)
     })

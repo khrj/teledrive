@@ -3,6 +3,7 @@ const {Airgram, toObject} = require('airgram')
 const {join} = require('path')
 const Store = require('electron-store')
 const store = new Store()
+const { addWatches } = require(join(__dirname, '..', 'watcher'))
 
 /**
  * @param {Airgram} client
@@ -122,6 +123,7 @@ module.exports.updateInfo = async (client, mainWindow) => {
         let stored = store.get('teleDir')
         if (stored) {
             (await mainWindow).webContents.send('selectedDir', stored)
+            addWatches(stored, me.id, client)
         }
 
         ipcMain.on('openFileDialog', async () => {
@@ -134,6 +136,7 @@ module.exports.updateInfo = async (client, mainWindow) => {
                     console.error(e)
                 }
                 (await mainWindow).webContents.send('selectedDir', teleDir)
+                addWatches(teleDir, me.id, client)
             }
         })
     }
