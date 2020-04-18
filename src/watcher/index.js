@@ -11,6 +11,10 @@ const changeFile = async (action, filePath, myID, client) => {
                 fromMessageId: 0,
                 limit: 100,
             })
+
+            console.log("RESULTS:")
+            console.log(results)
+
             if (results.response.totalCount === 0) {
                 // noinspection JSCheckFunctionSignatures
                 await client.api.sendMessage({
@@ -44,6 +48,11 @@ const changeFile = async (action, filePath, myID, client) => {
     }
 }
 
+/**
+ * @param {string} teleDir
+ * @param {string} myID
+ * @param {Airgram} client
+ */
 module.exports.addWatches = (teleDir, myID, client) => {
     const watcher = chokidar.watch(teleDir, {
         ignored: /(^|[\/\\])\../, // ignore dotfiles
