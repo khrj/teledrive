@@ -13,25 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     ipcRenderer.on('auth', async (event, message) => {
         console.log(message)
-        if (message === 'phoneNumber') {
-            ensureVisible()
-            description.innerHTML = 'Please enter your phone number<br>in international format.'
-            input.placeholder = 'Phone Number'
-            ipcRenderer.send('phoneNumber', await getInput())
-        } else if (message === 'authCode') {
-            ensureVisible()
-            description.innerHTML = 'Please enter OTP'
-            input.placeholder = 'One time password'
-            ipcRenderer.send('authCode', await getInput())
-        } else if (message === 'password') {
-            ensureVisible()
-            description.innerHTML = 'Please enter your 2FA Password'
-            input.placeholder = '2 Factor Auth Password'
-            input.type = 'password'
-            ipcRenderer.send('password', await getInput())
-        }
-
-        function ensureVisible () {
+        const ensureVisible  = () => {
             description.style.display = '' // Setting display to '' resets display to initial state
             button.style.display = ''
             input.style.display = ''
@@ -39,8 +21,8 @@ window.addEventListener('DOMContentLoaded', () => {
             title.innerHTML = 'Sign in to TeleDrive'
         }
 
-        function getInput () {
-            function modifyUI () {
+        const getInput = () => {
+            const modifyUI = () => {
                 let value = input.value
                 input.value = ''
                 title.innerHTML = 'Working...'
@@ -49,13 +31,13 @@ window.addEventListener('DOMContentLoaded', () => {
             }
 
             return new Promise(resolve => {
-                function clicked () {
+                const clicked = () => {
                     button.removeEventListener('click', clicked)
                     input.removeEventListener('keydown', pressed)
                     resolve(modifyUI())
                 }
 
-                function pressed (event) {
+                const pressed = (event) => {
                     if (event.keyCode === 13) {
                         button.removeEventListener('click', clicked)
                         input.removeEventListener('keydown', pressed)
@@ -66,6 +48,24 @@ window.addEventListener('DOMContentLoaded', () => {
                 button.addEventListener('click', clicked)
                 input.addEventListener('keydown', pressed)
             })
+        }
+
+        if (message._ === 'phoneNumber') {
+            ensureVisible()
+            description.innerHTML = 'Please enter your phone number<br>in international format.'
+            input.placeholder = 'Phone Number'
+            ipcRenderer.send('phoneNumber', await getInput())
+        } else if (message._ === 'authCode') {
+            ensureVisible()
+            description.innerHTML = 'Please enter OTP'
+            input.placeholder = 'One time password'
+            ipcRenderer.send('authCode', await getInput())
+        } else if (message._ === 'password') {
+            ensureVisible()
+            description.innerHTML = 'Please enter your 2FA Password'
+            input.placeholder = '2 Factor Auth Password'
+            input.type = 'password'
+            ipcRenderer.send('password', await getInput())
         }
     })
 
