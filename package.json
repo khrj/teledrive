@@ -31,7 +31,9 @@
                     "name": "@electron-forge/maker-dmg"
                 }
             ],
-            "packagerConfig": {}
+            "packagerConfig": {
+                "asar": true
+            }
         }
     },
     "dependencies": {
