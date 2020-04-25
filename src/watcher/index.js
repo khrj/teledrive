@@ -1,8 +1,14 @@
 const chokidar = require('chokidar')
 
+/**
+ * @param {string} action
+ * @param {string} filePath
+ * @param {string} myID
+ * @param {Airgram} client
+ * @returns {Promise<void>}
+ */
 const changeFile = async (action, filePath, myID, client) => {
     let tag = '#TeleDrive ' + filePath.split('TeleDriveSync').pop()
-
     switch (action) {
         case 'add':
             let results = await client.api.searchChatMessages({
@@ -12,7 +18,7 @@ const changeFile = async (action, filePath, myID, client) => {
                 limit: 100,
             })
 
-            console.log("RESULTS:")
+            console.log("Results:")
             console.log(results)
 
             if (results.response.totalCount === 0) {
