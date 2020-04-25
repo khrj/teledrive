@@ -1,9 +1,31 @@
 const {ipcMain, dialog} = require('electron')
 const {Airgram, toObject} = require('airgram')
-const {join} = require('path')
+const {join, parse} = require('path')
 const Store = require('electron-store')
 const store = new Store()
-const { addWatches } = require(join(__dirname, '..', 'watcher'))
+const {addWatches} = require(join(__dirname, '..', 'watcher'))
+
+const getTeleDir = () => {
+    return new Promise(resolve => {
+        let stored = store.get('teleDir')
+        if (stored) {
+            resolve(stored)
+        }
+
+        ipcMain.on('openFileDialog', async () => {
+            let response = await dialog.showOpenDialog({properties: ['openDirectory']})
+            if (!response.canceled) {
+                let teleDir = join(response.filePaths[0], 'TeleDriveSync');
+                try {
+                    store.set('teleDir', teleDir)
+                } catch (e) {
+                    console.error(e)
+                }
+                resolve(teleDir)
+            }
+        })
+    })
+}
 
 /**
  * @param {Airgram} client
@@ -14,8 +36,7 @@ module.exports.authenticate = async (client, mainWindow) => {
 
     await client
 
-    client.use(async (ctx, next) => {
-        if (ctx._ === 'updateAuthorizationState') {
+    client.on('updateAuthorizationState',async (ctx, next) => {
             console.log(`[authState][${ctx._}]`, JSON.stringify(ctx.update))
 
             if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
@@ -36,7 +57,6 @@ module.exports.authenticate = async (client, mainWindow) => {
                     password: await get('password', false),
                 })
             }
-        }
         return next()
     })
 
@@ -93,7 +113,7 @@ module.exports.updateInfo = async (client, mainWindow) => {
             offsetOrder: '9223372036854775807'
         })
 
-        // To increase speed, first send all info, then check if photo is download, if not, download, then update again
+        // To increase speed, first send all info, then check if photo is downloaded, if not, download, then update again
         let myInfo = {
             name: me.lastName ? me.firstName + ' ' + me.lastName : me.firstName,
             number: '+' + me.phoneNumber,
@@ -110,8 +130,8 @@ module.exports.updateInfo = async (client, mainWindow) => {
                 priority: 32
             })
             // Listen for completion of photo download
-            client.use(async (ctx, next) => {
-                if (ctx._ === "updateFile" && ctx.update.file.remote.id === me.profilePhoto.small.remote.id && ctx.update.file.local.isDownloadingCompleted) {
+            client.on('updateFile', async (ctx, next) => {
+                if (ctx.update.file.remote.id === me.profilePhoto.small.remote.id && ctx.update.file.local.isDownloadingCompleted) {
                     // Set photo and update again
                     myInfo.photo = ctx.update.file.local.path;
                     (await mainWindow).webContents.send('updateMyInfo', myInfo)
@@ -120,32 +140,103 @@ module.exports.updateInfo = async (client, mainWindow) => {
             })
         }
 
-        let stored = store.get('teleDir')
-        if (stored) {
-            (await mainWindow).webContents.send('selectedDir', stored)
-            addWatches(stored, me.id, client)
-        }
+        const fs = require('fs')
 
-        ipcMain.on('openFileDialog', async () => {
-            let response = await dialog.showOpenDialog({properties: ['openDirectory']})
-            if (!response.canceled) {
-                let teleDir = join(response.filePaths[0], 'TeleDriveSync');
-                try {
-                    store.set('teleDir', teleDir)
-                } catch (e) {
-                    console.error(e)
-                }
-                (await mainWindow).webContents.send('selectedDir', teleDir)
-                addWatches(teleDir, me.id, client)
-            }
-        })
+        /**
+         * @type {string}
+         */
+        let teleDir = await getTeleDir();
+
+        if (!fs.existsSync(teleDir)) {
+            await fs.mkdir(teleDir, {}, () => {})
+        }
+        (await mainWindow).webContents.send('selectedDir', teleDir)
+        addWatches(teleDir, me.id, client)
     }
     if ((await client.api.getAuthorizationState()).response._ !== "authorizationStateReady") {
-        client.use(async (response, next) => {
-            if (response._ === 'updateAuthorizationState' && response.update.authorizationState._ === "authorizationStateReady") {
+        client.on('updateAuthorizationState',async (ctx, next) => {
+            if (ctx.update.authorizationState._ === "authorizationStateReady") {
                 await update();
             }
             return next()
         })
     } else await update()
+}
+
+/**
+ * @param {Airgram} client
+ */
+module.exports.bindFetcher = (client) => {
+    const fs = require('fs')
+    ipcMain.on('syncAll', async () => {
+        let myID = toObject(await (await client).api.getMe()).id
+        let teleDir = await getTeleDir()
+        if (!fs.existsSync(teleDir)) {
+            await fs.mkdir(teleDir, {recursive: true}, () => {})
+        }
+        console.log("SYNCING ALL")
+        const downloadIfNotExists = (message) => {
+            // Add TeleDriveSync path to the message content, while removing #TeleDrive and the file name to get parent folder
+            let path = parse(join(teleDir, message.content.caption.text.replace(/#TeleDrive \//g, '')))
+
+            fs.mkdir(path.dir, {recursive: true}, (err) => {
+                if (err) {
+                    console.error(err)
+                }
+
+                // Check if the file exists in the current directory.
+                fs.access(join(path.dir, path.base), fs.constants.F_OK, async (err) => {
+                    if (err) { // If it doesn't exist
+                        console.log(path.base + "Doesn't exist yet, d")
+                        const moveFile = (file) => {
+                            console.log("MOVING FILE:")
+                            console.log(file.local)
+
+                            fs.copyFile(file.local.path, join(path.dir, path.base), (err) => {
+                                if (err) {
+                                    throw err
+                                } else {
+                                    console.log('Successfully moved')
+                                    client.api.deleteFile({fileId: file.id})
+                                }
+                            })
+                        }
+
+                        let response = client.api.downloadFile({
+                            fileId: message.content.document.document.id,
+                            priority: 32
+                        })
+
+                        console.log(await response)
+
+                        client.on('updateFile', async (ctx, next) => {
+                            console.log("Done downloading?")
+                            console.log(ctx.update.file.local.isDownloadingCompleted)
+
+                            console.log("Remote ID:")
+                            console.log(ctx.update.file.remote.id)
+
+                            console.log("Local ID:")
+                            console.log(message.content.document.document.remote.id)
+
+                            if (ctx.update.file.local.isDownloadingCompleted &&
+                                ctx.update.file.remote.id === message.content.document.document.remote.id) {
+                                moveFile(ctx.update.file)
+                            }
+                            return next()
+                        })
+                    }
+                })
+            })
+        }
+
+        let searchResults = await client.api.searchChatMessages({
+            chatId: myID,
+            query: '#TeleDrive',
+            fromMessageId: 0,
+            limit: 100,
+        })
+
+        searchResults.response.messages.forEach(downloadIfNotExists)
+    })
 }

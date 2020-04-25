@@ -2,7 +2,7 @@ const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
 
-const { authenticate, create, updateInfo } = require(path.join(__dirname, 'telegram-binder'))
+const { authenticate, create, updateInfo, bindFetcher } = require(path.join(__dirname, 'telegram-binder'))
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -41,6 +41,7 @@ app.on('ready', async () => {
     createWindow()
     authenticate(client, mainWindow)
     updateInfo(client, mainWindow)
+    bindFetcher(client)
 
     app.on('activate', async () => {
         if (BrowserWindow.getAllWindows().length === 0) {
