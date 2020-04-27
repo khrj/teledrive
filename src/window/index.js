@@ -19,7 +19,10 @@ window.addEventListener('DOMContentLoaded', () => {
         title.innerHTML = 'Sign in to TeleDrive'
     }
 
-    ipcRenderer.on('auth', async (event, message) => {
+    // Leave as async non-arrow function, required for bytenode successful compilation
+    // https://github.com/OsamaAbbas/bytenode/issues/47 #wontfix
+    // noinspection JSFunctionExpressionToArrowFunction
+    ipcRenderer.on('auth', async function (event, message) {
         console.log(message)
 
         const getInput = () => {
@@ -38,7 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     resolve(modifyUI())
                 }
 
-                const pressed = (event) => {
+                const pressed = event => {
                     if (event.keyCode === 13) {
                         button.removeEventListener('click', clicked)
                         input.removeEventListener('keydown', pressed)
