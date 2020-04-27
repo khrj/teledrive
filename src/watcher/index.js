@@ -79,6 +79,5 @@ module.exports.addWatches = (teleDir, myID, client) => {
         })
         .on('error', async error => {
             console.error('Error occurred', error)
-            await changeFile('error', path, myID, client)
         })
 }
