@@ -32,7 +32,12 @@
                 }
             ],
             "packagerConfig": {
-                "asar": true
+                "asar": true,
+                "ignore": [
+                    "yarn.lock",
+                    ".gitignore",
+                    "README.md"
+                ]
             }
         }
     },
@@ -61,15 +66,12 @@
     ],
     "license": "UNLICENSED",
     "main": "src/app.js",
-    "name": "TeleDrive",
+    "name": "teledrive",
     "productName": "TeleDrive",
     "repository": "https://github.com/KhushrajRathod/TeleDrive",
     "scripts": {
-        "lint": "echo \"No linting configured\"",
         "make": "electron-forge make",
-        "package": "electron-forge package",
-        "publish": "electron-forge publish",
         "start": "electron-forge start"
     },
-    "version": "0.0.5"
+    "version": "0.1"
 }

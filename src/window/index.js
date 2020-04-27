@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron')
+const {ipcRenderer} = require('electron')
 
 window.addEventListener('DOMContentLoaded', () => {
     const title = document.getElementById('title')
@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const profilePicture = document.getElementById('profilePicture')
     const syncButton = document.getElementById('reDownload')
 
-    const ensureVisible  = () => {
+    const ensureVisible = () => {
         description.style.display = '' // Setting display to '' resets display to initial state
         button.style.display = ''
         input.style.display = ''
@@ -19,10 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
         title.innerHTML = 'Sign in to TeleDrive'
     }
 
-    // Leave as async non-arrow function, required for bytenode successful compilation
-    // https://github.com/OsamaAbbas/bytenode/issues/47 #wontfix
-    // noinspection JSFunctionExpressionToArrowFunction
-    ipcRenderer.on('auth', async function (event, message) {
+    ipcRenderer.on('auth', async (event, message) => {
         console.log(message)
 
         const getInput = () => {
@@ -96,7 +93,7 @@ window.addEventListener('DOMContentLoaded', () => {
         })
 
         button.style.display = ''
-        input.style.display='none'
+        input.style.display = 'none'
     })
 
     ipcRenderer.on('selectedDir', (event, path) => {
