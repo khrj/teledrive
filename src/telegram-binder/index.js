@@ -3,7 +3,7 @@ const {Airgram, toObject} = require('airgram')
 const {join, parse} = require('path')
 const Store = require('electron-store')
 const store = new Store()
-const {addWatches} = require(join(__dirname, '..', 'watcher'))
+const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
 
 const getTeleDir = () => {
     return new Promise(resolve => {
@@ -36,27 +36,27 @@ module.exports.authenticate = async (client, mainWindow) => {
 
     await client
 
-    client.on('updateAuthorizationState',async (ctx, next) => {
-            console.log(`[authState][${ctx._}]`, JSON.stringify(ctx.update))
+    client.on('updateAuthorizationState', async (ctx, next) => {
+        console.log(`[authState][${ctx._}]`, JSON.stringify(ctx.update))
 
-            if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
-                await client.api.setAuthenticationPhoneNumber({
-                    phoneNumber: await get('phoneNumber', false),
-                    settings: {
-                        allowFlashCall: false,
-                        isCurrentPhoneNumber: false,
-                        allowSmsRetrieverApi: false
-                    }
-                })
-            } else if (ctx.update.authorizationState._ === "authorizationStateWaitCode") {
-                await client.api.checkAuthenticationCode({
-                    code: await get('authCode', false),
-                })
-            } else if (ctx.update.authorizationState._ === "authorizationStateWaitPassword") {
-                await client.api.checkAuthenticationPassword({
-                    password: await get('password', false),
-                })
-            }
+        if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
+            await client.api.setAuthenticationPhoneNumber({
+                phoneNumber: await get('phoneNumber', false),
+                settings: {
+                    allowFlashCall: false,
+                    isCurrentPhoneNumber: false,
+                    allowSmsRetrieverApi: false
+                }
+            })
+        } else if (ctx.update.authorizationState._ === "authorizationStateWaitCode") {
+            await client.api.checkAuthenticationCode({
+                code: await get('authCode', false),
+            })
+        } else if (ctx.update.authorizationState._ === "authorizationStateWaitPassword") {
+            await client.api.checkAuthenticationPassword({
+                password: await get('password', false),
+            })
+        }
         return next()
     })
 
@@ -148,13 +148,14 @@ module.exports.updateInfo = async (client, mainWindow) => {
         let teleDir = await getTeleDir();
 
         if (!fs.existsSync(teleDir)) {
-            await fs.mkdir(teleDir, {}, () => {})
+            await fs.mkdir(teleDir, {}, () => {
+            })
         }
         (await mainWindow).webContents.send('selectedDir', teleDir)
         addWatches(teleDir, me.id, client)
     }
     if ((await client.api.getAuthorizationState()).response._ !== "authorizationStateReady") {
-        client.on('updateAuthorizationState',async (ctx, next) => {
+        client.on('updateAuthorizationState', async (ctx, next) => {
             if (ctx.update.authorizationState._ === "authorizationStateReady") {
                 await update();
             }
@@ -172,7 +173,8 @@ module.exports.bindFetcher = (client) => {
         let myID = toObject(await (await client).api.getMe()).id
         let teleDir = await getTeleDir()
         if (!fs.existsSync(teleDir)) {
-            await fs.mkdir(teleDir, {recursive: true}, () => {})
+            await fs.mkdir(teleDir, {recursive: true}, () => {
+            })
         }
         console.log("SYNCING ALL")
         const downloadIfNotExists = (message) => {
