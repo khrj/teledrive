@@ -32,7 +32,6 @@
                 }
             ],
             "packagerConfig": {
-                "asar": true,
                 "ignore": [
                     "yarn.lock",
                     ".gitignore",

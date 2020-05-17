@@ -38,13 +38,13 @@ app.on('ready', async () => {
     // noinspection ES6MissingAwait
     createWindow()
     authenticate(client, mainWindow)
-    updateInfo(client, mainWindow)
+    updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())
     bindFetcher(client)
 
     app.on('activate', async () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             await createWindow();
-            await updateInfo(client, mainWindow)
+            await updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())
         }
     });
 })
