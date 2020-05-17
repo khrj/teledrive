@@ -99,10 +99,10 @@ module.exports.create = (appStorage, appPath) => {
 }
 
 /**
- * @param {Airgram} client
- * @param {BrowserWindow} mainWindow
+ * @ param {Airgram} client
+ * @ param {BrowserWindow} mainWindow
  * */
-module.exports.updateInfo = async (client, mainWindow) => {
+module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion) => {
     const update = async () => {
         let me = toObject(await (await client).api.getMe())
 
@@ -152,7 +152,7 @@ module.exports.updateInfo = async (client, mainWindow) => {
             })
         }
         (await mainWindow).webContents.send('selectedDir', teleDir)
-        addWatches(teleDir, me.id, client)
+        addWatches(teleDir, me.id, client, appFilesPath, appVersion)
     }
     if ((await client.api.getAuthorizationState()).response._ !== "authorizationStateReady") {
         client.on('updateAuthorizationState', async (ctx, next) => {
