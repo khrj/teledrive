@@ -8,107 +8,118 @@ const queue = []
 let lock = false
 
 const addFile = async (filePath, myID, client, tag, appFilesPath) => {
-    console.log("ADDING FILE: " + filePath)
-    console.log("TAG IS: " + tag)
+    return new Promise(resolve => {
+        console.log("ADDING FILE: " + filePath)
+        console.log("TAG IS: " + tag)
 
-    let results = await client.api.searchChatMessages({
-        chatId: myID,
-        query: tag,
-        fromMessageId: 0,
-        limit: 100,
-    })
+        fs.readFile(join(appFilesPath, 'TeleDriveMaster.json'), async (err, data) => {
+            if (err) throw err
+            let masterData = JSON.parse(data.toString())
+            let existingFile = false
+            masterData.files.forEach((file) => {
+                if (file._ === filePath.split('TeleDriveSync').pop()) {
+                    existingFile = file
+                }
+            })
 
-    if (results.response.totalCount === 0) {
-        let masterModification = new Promise(resolve => {
-            fs.readFile(join(appFilesPath, 'TeleDriveMaster.json'), (err, data) => {
-                if (err) throw console.error(err);
-                let masterData = JSON.parse(data.toString());
-
-                // Getting hash
+            let masterModification = new Promise(resolve => {
                 let sha = createHash("sha256")
-
-                // Updating sha with file content
                 let stream = fs.createReadStream(filePath)
                 stream.on('data', (data) => {
                     sha.update(data)
                 })
-
-                // Hash
                 stream.on('end', () => {
                     let hash = sha.digest('hex')
 
                     console.log("HASH FOR FILE " + filePath + " IS:")
                     console.log(hash)
 
-                    // Prepare json
-                    masterData.files.push({_: filePath.split('TeleDriveSync').pop(), hash: hash})
-
-                    console.log("NEW JSON IS:")
-                    console.log(masterData)
-
-
-                    // Overwrite Master File
-                    fs.writeFile(join(appFilesPath, 'TeleDriveMaster.json'), JSON.stringify(masterData), async (err) => {
-                        if (err) {
-                            console.error("OVERWRITE ERROR")
-                            console.error(err)
+                    if (existingFile) {
+                        if (existingFile.hash === hash) {
+                            console.log(filePath + " is exact duplicate of " + existingFile._ + ", exiting...")
+                            resolve(false)
+                        } else {
+                            // FILE HAS CHANGED, TODO
+                            resolve(false)
                         }
-                        console.log('Overwrote Master File');
-                        // Find Master Message
-                        let results = await client.api.searchChatMessages({
-                            chatId: myID,
-                            query: "#TeleDriveMaster",
-                            fromMessageId: 0,
-                            limit: 100,
-                        })
+                    } else {
+                        // Prepare json
+                        masterData.files.push({_: filePath.split('TeleDriveSync').pop(), hash: hash})
 
-                        // Re-attach Master File
-                        await client.api.editMessageMedia({
-                            chatId: myID,
-                            messageId: results.response.messages[0].id,
-                            inputMessageContent: {
-                                _: "inputMessageDocument",
-                                document: {
-                                    _: "inputFileLocal",
-                                    path: join(appFilesPath, "TeleDriveMaster.json")
-                                },
-                                caption: {
-                                    text: "#TeleDriveMaster - This file contains your directory structure and file identification details. " +
-                                        "Deleting this file will make TeleDrive forget your existing files and will cause problems " +
-                                        "if you use TeleDrive again without deleting all TeleDrive files from your saved messages. " +
-                                        "Your files will still be backed up to telegram but you will have to manually restore them."
-                                }
+                        console.log("NEW JSON IS:")
+                        console.log(masterData)
+
+                        // Overwrite Master File
+                        fs.writeFile(join(appFilesPath, 'TeleDriveMaster.json'), JSON.stringify(masterData), async (err) => {
+                            if (err) {
+                                console.error("OVERWRITE ERROR")
+                                console.error(err)
                             }
+                            console.log('Overwrote Master File');
+
+                            // Find Master Message Id
+                            let results = await client.api.searchChatMessages({
+                                chatId: myID,
+                                query: "#TeleDriveMaster",
+                                fromMessageId: 0,
+                                limit: 100,
+                            })
+
+                            // Re-attach Master File
+                            await client.api.editMessageMedia({
+                                chatId: myID,
+                                messageId: results.response.messages[0].id,
+                                inputMessageContent: {
+                                    _: "inputMessageDocument",
+                                    document: {
+                                        _: "inputFileLocal",
+                                        path: join(appFilesPath, "TeleDriveMaster.json")
+                                    },
+                                    caption: {
+                                        text: "#TeleDriveMaster - This file contains your directory structure and file identification details. " +
+                                            "Deleting this file will make TeleDrive forget your existing files and will cause problems " +
+                                            "if you use TeleDrive again without deleting all TeleDrive files from your saved messages. " +
+                                            "Your files will still be backed up to telegram but you will have to manually restore them."
+                                    }
+                                }
+                            })
+
+                            resolve(true)
                         })
-
-                        resolve()
-                    })
+                    }
                 })
-            });
-        })
+            })
 
-        await masterModification // after that's done, then
-
-        // noinspection JSCheckFunctionSignatures
-        await client.api.sendMessage({
-            chatId: myID,
-            replyToMessageId: 0,
-            options: {
-                disableNotification: true,
-                fromBackground: true
-            },
-            inputMessageContent: {
-                _: 'inputMessageDocument',
-                document: {
-                    _: 'inputFileLocal',
-                    path: filePath
-                },
-                caption: {
-                    text: tag
-                }
+            // If file is already not on server (exact duplicate)
+            if ((await masterModification) === true) {
+                // noinspection JSCheckFunctionSignatures
+                await client.api.sendMessage({
+                    chatId: myID,
+                    replyToMessageId: 0,
+                    options: {
+                        disableNotification: true,
+                        fromBackground: true
+                    },
+                    inputMessageContent: {
+                        _: 'inputMessageDocument',
+                        document: {
+                            _: 'inputFileLocal',
+                            path: filePath
+                        },
+                        caption: {
+                            text: tag
+                        }
+                    }
+                })
+                resolve()
+            } else {
+                console.log("Looks like a duplicate to me")
+                console.log("Because I got the value: ")
+                console.log((await masterModification))
+                resolve()
             }
         })
-    }
+    })
 }
 
 const removeFile = async (filePath, myID, client, tag, appFilesPath) => {
@@ -127,112 +138,123 @@ const changeFile = async (filePath, myID, client, tag, appFilesPath) => {
  * @param {*} appVersion
  */
 module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersion) => {
-    const evalQueue = async () => {
+    const evalQueue = () => {
         lock = true
         console.log("EVALUATING")
-        while (queue.length > 0) {
-            let change = queue[0]
-            let tag = '#TeleDrive ' + change.path.split('TeleDriveSync').pop()
-            switch (change._) {
-                case 'add':
-                    await addFile(change.path, myID, client, tag, appFilesPath)
-                    queue.shift()
-                    break
-                case 'remove':
-                    await removeFile(change.path, myID, client, tag, appFilesPath)
-                    queue.shift()
-                    break
-                case 'change':
-                    await changeFile(change.path, myID, client, tag, appFilesPath)
-                    queue.shift()
-                    break
-                case 'error':
-                    throw change.path
-            }
+        const next = () => {
+            new Promise(resolve => {
+                let change = queue[0]
+                let tag = '#TeleDrive ' + change.path.split('TeleDriveSync').pop()
+                switch (change._) {
+                    case 'add':
+                        addFile(change.path, myID, client, tag, appFilesPath).then(() => {
+                            queue.shift()
+                            resolve()
+                        })
+                        break
+                    case 'remove':
+                        removeFile(change.path, myID, client, tag, appFilesPath).then(() => {
+                            queue.shift()
+                            resolve()
+                        })
+                        break
+                    case 'change':
+                        changeFile(change.path, myID, client, tag, appFilesPath).then(() => {
+                            queue.shift()
+                            resolve()
+                        })
+                        break
+                    case 'error':
+                        throw change.path
+                }
+            }).then(() => {
+                if (queue.length > 0) {
+                    next()
+                } else {
+                    lock = false
+                    console.log("COMPLETED EVALUATION")
+                }
+            })
         }
-        console.log("COMPLETED EVALUATION")
-        lock = false
+        next()
     }
 
-    const verifyMasterFile = async () => {
-        return new Promise(async resolve => {
-            // Check if the file already exists
-            fs.access(join(appFilesPath, "TeleDriveMaster.json"), fs.constants.F_OK, async (err) => {
-                // If not, then
-                if (err) {
-                    let results = await client.api.searchChatMessages({
-                        chatId: myID,
-                        query: "#TeleDriveMaster",
-                        fromMessageId: 0,
-                        limit: 100,
-                    })
+    const verifyMasterFile = new Promise(async resolve => {
+        // Check if the file already exists
+        fs.access(join(appFilesPath, "TeleDriveMaster.json"), fs.constants.F_OK, async (err) => {
+            // If not, then
+            if (err) {
+                let results = await client.api.searchChatMessages({
+                    chatId: myID,
+                    query: "#TeleDriveMaster",
+                    fromMessageId: 0,
+                    limit: 100,
+                })
 
-                    if (results.response.totalCount === 0) { // If no master file yet
-                        fs.writeFile(join(appFilesPath, "TeleDriveMaster.json"), JSON.stringify({
-                            _: "TeleDriveMaster",
-                            version: appVersion,
-                            files: []
-                        }), async err => {
-                            if (err) {
-                                console.error("ERROR IS HERER RENBROAEUTYGABEOHYBOREABGYTUIAV " + err) //TODO
-                                console.error("THE APP FILES PATH IS " + appFilesPath)
-                                console.error("THE JOINED VERSION IS " + join(appFilesPath, "TeleDriveMaster.json"))
-                            } else {
-                                await client.api.sendMessage({
-                                    chatId: myID,
-                                    replyToMessageId: 0,
-                                    options: {
-                                        disableNotification: true,
-                                        fromBackground: true
+                if (results.response.totalCount === 0) { // If no master file yet
+                    fs.writeFile(join(appFilesPath, "TeleDriveMaster.json"), JSON.stringify({
+                        _: "TeleDriveMaster",
+                        version: appVersion,
+                        files: []
+                    }), async err => {
+                        if (err) {
+                            console.error("MASTER WRITE ERROR")
+                            console.error(err)
+                        } else {
+                            await client.api.sendMessage({
+                                chatId: myID,
+                                replyToMessageId: 0,
+                                options: {
+                                    disableNotification: true,
+                                    fromBackground: true
+                                },
+                                inputMessageContent: {
+                                    _: 'inputMessageDocument',
+                                    document: {
+                                        _: 'inputFileLocal',
+                                        path: join(appFilesPath, "TeleDriveMaster.json")
                                     },
-                                    inputMessageContent: {
-                                        _: 'inputMessageDocument',
-                                        document: {
-                                            _: 'inputFileLocal',
-                                            path: join(appFilesPath, "TeleDriveMaster.json")
-                                        },
-                                        caption: {
-                                            text: "#TeleDriveMaster - This file contains your directory structure and file identification details. " +
-                                                "Deleting this file will make TeleDrive forget your existing files and will cause problems " +
-                                                "if you use TeleDrive again without deleting all TeleDrive files from your saved messages. " +
-                                                "Your files will still be backed up to telegram but you will have to manually restore them."
-                                        }
+                                    caption: {
+                                        text: "#TeleDriveMaster - This file contains your directory structure and file identification details. " +
+                                            "Deleting this file will make TeleDrive forget your existing files and will cause problems " +
+                                            "if you use TeleDrive again without deleting all TeleDrive files from your saved messages. " +
+                                            "Your files will still be backed up to telegram but you will have to manually restore them."
                                     }
-                                })
-                                resolve()
-                            }
-                        })
-                    } else {
-                        const moveFile = (file) => {
-                            fs.copyFile(file.local.path, appFilesPath, (err) => {
-                                if (err) {
-                                    throw err
-                                } else {
-                                    console.log('Successfully moved')
-                                    client.api.deleteFile({fileId: file.id})
                                 }
                             })
+                            resolve(true)
                         }
-
-                        await client.api.downloadFile({
-                            fileId: results.response.messages[0].content.document.document.id,
-                            priority: 32
-                        })
-
-                        client.on('updateFile', async (ctx, next) => {
-                            if (ctx.update.file.local.isDownloadingCompleted &&
-                                ctx.update.file.remote.id === results.response.messages[0].content.document.document.remote.id) {
-                                moveFile(ctx.update.file)
-                                resolve()
+                    })
+                } else {
+                    const moveFile = (file) => {
+                        fs.copyFile(file.local.path, appFilesPath, (err) => {
+                            if (err) {
+                                throw err
+                            } else {
+                                console.log('Successfully moved')
+                                client.api.deleteFile({fileId: file.id})
                             }
-                            return next()
                         })
                     }
-                } else resolve()
-            });
-        })
-    }
-    await verifyMasterFile()
+
+                    await client.api.downloadFile({
+                        fileId: results.response.messages[0].content.document.document.id,
+                        priority: 32
+                    })
+
+                    client.on('updateFile', async (ctx, next) => {
+                        if (ctx.update.file.local.isDownloadingCompleted &&
+                            ctx.update.file.remote.id === results.response.messages[0].content.document.document.remote.id) {
+                            moveFile(ctx.update.file)
+                            resolve()
+                        }
+                        return next()
+                    })
+                }
+            } else resolve()
+        });
+    })
+    await verifyMasterFile // after that's done, then
 
     const watcher = chokidar.watch(teleDir, {
         ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -241,7 +263,6 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
 
     watcher
         .on('add', path => {
-            console.log('File', path, 'has been added')
             queue.push({_: "add", path: path})
             if (!lock) {
                 evalQueue()
