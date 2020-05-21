@@ -39,7 +39,7 @@ app.on('ready', async () => {
     createWindow()
     authenticate(client, mainWindow)
     updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())
-    bindFetcher(client)
+    bindFetcher(client, app.getPath('userData'), mainWindow)
 
     app.on('activate', async () => {
         if (BrowserWindow.getAllWindows().length === 0) {
