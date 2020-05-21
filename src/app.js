@@ -29,6 +29,15 @@ const createWindow = async () => {
             shell.openExternal(url)
         })
 
+        window.on('close', (event) => {
+            if (app.quitting) {
+                window = null
+            } else {
+                event.preventDefault()
+                window.hide()
+            }
+        })
+
         resolve(window)
     })
 };
@@ -42,11 +51,8 @@ app.on('ready', async () => {
     bindFetcher(client, app.getPath('userData'), mainWindow)
 
     app.on('activate', async () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            await createWindow();
-            await updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())
-        }
-    });
+        (await mainWindow).show()
+    })
 })
 
 app.on('window-all-closed', () => {
@@ -54,3 +60,5 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+app.on('before-quit', () => app.quitting = true)
