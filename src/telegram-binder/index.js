@@ -5,6 +5,9 @@ const Store = require('electron-store')
 const store = new Store()
 const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
 
+/**
+ * @return {Promise<string>}
+ * */
 const getTeleDir = () => {
     return new Promise(resolve => {
         let stored = store.get('teleDir')
@@ -166,79 +169,120 @@ module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion)
 
 /**
  * @param {Airgram} client
+ * @param {string} appFilesPath
+ * @param {Promise<BrowserWindow>} mainWindow
  */
-module.exports.bindFetcher = (client) => {
+module.exports.bindFetcher = (client, appFilesPath, mainWindow) => {
     const fs = require('fs')
     ipcMain.on('syncAll', async () => {
         let myID = toObject(await (await client).api.getMe()).id
         let teleDir = await getTeleDir()
-        if (!fs.existsSync(teleDir)) {
-            await fs.mkdir(teleDir, {recursive: true}, () => {
-            })
-        }
+
+        // Ensure teleDir is on disk
+        await new Promise(resolve => {
+            if (!fs.existsSync(teleDir)) {
+                fs.mkdir(teleDir, {recursive: true}, () => {
+                    resolve()
+                })
+            } else {
+                resolve()
+            }
+        })
+
         console.log("SYNCING ALL")
-        const downloadIfNotExists = (message) => {
-            // Add TeleDriveSync path to the message content, while removing #TeleDrive and the file name to get parent folder
-            let path = parse(join(teleDir, message.content.caption.text.replace(/#TeleDrive \//g, '')))
+        const downloadRelative = (relativePath) => {
+            return new Promise(resolve => {
+                console.log("NOW DOWNLOADING " + relativePath)
+                // Split path into useful chunks
+                let path = parse(join(teleDir, relativePath))
 
-            fs.mkdir(path.dir, {recursive: true}, (err) => {
-                if (err) {
-                    console.error(err)
-                }
+                fs.mkdir(path.dir, {recursive: true}, async (err) => {
+                    if (err) throw err
+                    let searchResults = await client.api.searchChatMessages({
+                        chatId: myID,
+                        query: "#TeleDrive " + relativePath,
+                        fromMessageId: 0,
+                        limit: 100,
+                    })
 
-                // Check if the file exists in the current directory.
-                fs.access(join(path.dir, path.base), fs.constants.F_OK, async (err) => {
-                    if (err) { // If it doesn't exist
-                        console.log(path.base + "Doesn't exist yet, d")
-                        const moveFile = (file) => {
+
+                    let downloadResponse = client.api.downloadFile({
+                        fileId: searchResults.response.messages[0].content.document.document.id,
+                        priority: 32
+                    })
+
+                    console.log(await downloadResponse)
+
+                    client.on('updateFile', async (ctx, next) => {
+                        console.log("Done downloading?")
+                        console.log(ctx.update.file.local.isDownloadingCompleted)
+
+                        console.log("Remote ID:")
+                        console.log(ctx.update.file.remote.id)
+
+                        console.log("Local File's remote ID:")
+                        console.log(searchResults.response.messages[0].content.document.document.remote.id)
+
+                        if (ctx.update.file.local.isDownloadingCompleted &&
+                            ctx.update.file.remote.id === searchResults.response.messages[0].content.document.document.remote.id) {
                             console.log("MOVING FILE:")
-                            console.log(file.local)
+                            console.log(ctx.update.file.local)
 
-                            fs.copyFile(file.local.path, join(path.dir, path.base), (err) => {
+                            fs.copyFile(ctx.update.file.local.path, join(teleDir, relativePath), (err) => {
                                 if (err) {
-                                    throw err
-                                } else {
-                                    console.log('Successfully moved')
-                                    client.api.deleteFile({fileId: file.id})
+                                    console.log("Not an error, suppressing ahahahahahahaha")
+                                    // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
+                                    // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
                                 }
+                                console.log('Successfully moved')
+                                client.api.deleteFile({fileId: ctx.update.file.id})
+                                return resolve()
                             })
                         }
-
-                        let response = client.api.downloadFile({
-                            fileId: message.content.document.document.id,
-                            priority: 32
-                        })
-
-                        console.log(await response)
-
-                        client.on('updateFile', async (ctx, next) => {
-                            console.log("Done downloading?")
-                            console.log(ctx.update.file.local.isDownloadingCompleted)
-
-                            console.log("Remote ID:")
-                            console.log(ctx.update.file.remote.id)
-
-                            console.log("Local ID:")
-                            console.log(message.content.document.document.remote.id)
-
-                            if (ctx.update.file.local.isDownloadingCompleted &&
-                                ctx.update.file.remote.id === message.content.document.document.remote.id) {
-                                moveFile(ctx.update.file)
-                            }
-                            return next()
-                        })
-                    }
+                        return next()
+                    })
                 })
             })
         }
 
-        let searchResults = await client.api.searchChatMessages({
-            chatId: myID,
-            query: '#TeleDrive',
-            fromMessageId: 0,
-            limit: 100,
-        })
+        fs.readFile(join(appFilesPath, 'TeleDriveMaster.json'), async (err, data) => {
+            if (err) throw err
+            let masterData = JSON.parse(data.toString())
+            const {createHash} = require('crypto');
 
-        searchResults.response.messages.forEach(downloadIfNotExists)
+            const wait = async () => {
+                for (data of masterData.files) {
+                    await new Promise(resolve => {
+                        fs.access(join(teleDir, data._), fs.constants.F_OK, async (err) => {
+                            if (err) { // If doesn't already exist
+                                await downloadRelative(data._)
+                                resolve()
+                            } else { // If already exists
+                                let sha = createHash("sha256")
+                                let stream = fs.createReadStream(join(teleDir, data._))
+                                stream.on('data', (part) => {
+                                    sha.update(part)
+                                })
+                                stream.on('end', () => {
+                                    let hash = sha.digest('hex')
+                                    console.log("[SYNC] Hash for local file " + join(teleDir, data._) + " is: " + hash)
+
+                                    if (hash === data.hash) { // If exact duplicate
+                                        return resolve() // Don't need to do anything
+                                    } else { // If conflict
+                                        //TODO
+                                    }
+                                })
+                            }
+                        })
+                    })
+                }
+            }
+
+            await wait();
+
+            (await mainWindow).webContents.send("syncOver")
+
+        })
     })
 }
