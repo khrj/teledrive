@@ -44,13 +44,11 @@ const getTeleDir = () => {
  * @param {BrowserWindow} mainWindow
  * */
 module.exports.authenticate = async (client, mainWindow) => {
-    console.log("Authing...")
+    console.log("[AUTH] Starting...")
 
     await client
 
     client.on('updateAuthorizationState', async (ctx, next) => {
-        console.log(`[authState][${ctx._}]`, JSON.stringify(ctx.update))
-
         if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
             await client.api.setAuthenticationPhoneNumber({
                 phoneNumber: await get('phoneNumber', false),
@@ -78,13 +76,12 @@ module.exports.authenticate = async (client, mainWindow) => {
      * @returns {Promise<{String}>}
      */
     const get = async (what, isRetry) => {
-        console.log("Getting " + what);
+        console.log("[AUTH] Prompting for " + what);
         (await mainWindow).webContents.send('auth', {_: what, isRetry: isRetry})
 
         return new Promise(resolve => {
             ipcMain.on(what, (event, message) => {
-                console.log("Received: " + what)
-                console.log(message)
+                console.log("[AUTH] Received: " + what)
                 resolve(message)
             })
         })
@@ -96,7 +93,7 @@ module.exports.authenticate = async (client, mainWindow) => {
  * @param {string} appPath
  * */
 module.exports.create = (appStorage, appPath) => {
-    console.log("App storage:")
+    console.log("[SETUP] App storage:")
     console.log(appStorage)
     // noinspection JSCheckFunctionSignatures
     return new Airgram({
@@ -181,7 +178,7 @@ module.exports.bindFetcher = (client, appFilesPath, mainWindow) => {
         let myID = toObject(await (await client).api.getMe()).id
         let teleDir = await getTeleDir()
 
-        console.log("SYNCING ALL")
+        console.log("[SYNC] Starting...")
         const downloadRelative = (relativePath) => {
             return new Promise(async resolve => {
                 console.log("NOW DOWNLOADING " + relativePath)
@@ -194,25 +191,14 @@ module.exports.bindFetcher = (client, appFilesPath, mainWindow) => {
                         query: "#TeleDrive " + relativePath,
                         fromMessageId: 0,
                         limit: 100,
-                    })
+                })
 
-                let downloadResponse = client.api.downloadFile({
+                await client.api.downloadFile({
                         fileId: searchResults.response.messages[0].content.document.document.id,
                         priority: 32
-                    })
-
-                console.log(await downloadResponse)
+                })
 
                 client.on('updateFile', async (ctx, next) => {
-                        console.log("Done downloading?")
-                        console.log(ctx.update.file.local.isDownloadingCompleted)
-
-                        console.log("Remote ID:")
-                        console.log(ctx.update.file.remote.id)
-
-                        console.log("Local File's remote ID:")
-                        console.log(searchResults.response.messages[0].content.document.document.remote.id)
-
                         if (ctx.update.file.local.isDownloadingCompleted &&
                             ctx.update.file.remote.id === searchResults.response.messages[0].content.document.document.remote.id) {
                             console.log("MOVING FILE:")
@@ -238,33 +224,34 @@ module.exports.bindFetcher = (client, appFilesPath, mainWindow) => {
         let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
         const {createHash} = require('crypto');
 
-        for (const item of masterData.files) {
+        for (const item in masterData.files) {
             await new Promise(async resolve => {
-                try { // If file already exists on device
-                    await fsPromise.access(join(teleDir, item._))
+                try { // Check if file already exists on device
+                    await fsPromise.access(join(teleDir, item)) // If file already exists on device, then go on else throw
                     let sha = createHash("sha256")
-                    sha.update(await fsPromise.readFile(join(teleDir, item._)))
+                    sha.update(await fsPromise.readFile(join(teleDir, item)))
                     let hash = sha.digest('hex')
-                    console.log("[SYNC] Hash for local file " + join(teleDir, item._) + " is: " + hash)
+                    console.log("[SYNC] Hash for local file " + join(teleDir, item) + " is: " + hash)
 
-                    if (item.hashes.slice(0, -1).indexOf(hash) !== -1) { // If old version
-                        console.log("[SYNC] Old version of file " + item._ + " found locally, Overwriting...")
-                        await downloadRelative(item._) // Same as non-existent
+                    if (masterData.files[item].slice(0, -1).indexOf(hash) !== -1) { // If old version
+                        console.log("[SYNC] Old version of file " + item + " found locally, Overwriting...")
+                        await downloadRelative(item) // Same as non-existent
                         resolve()
-                    } else if (item.hashes.slice(-1)[0] === hash) { // If exact duplicate
-                        console.log("[SYNC] Exact duplicate of " + item._ + " found locally, Skipping...")
+                    } else if (masterData.files[item].slice(-1)[0] === hash) { // If exact duplicate
+                        console.log("[SYNC] Exact duplicate of " + item + " found locally, Skipping...")
                         resolve() // Don't need to do anything
                     } else { // If conflicting
                         //TODO
-                        console.log("[SYNC CONFLICT] Newer version of " + item._ + " found locally, Skipping...")
+                        console.log("[SYNC] [CONFLICT] Newer version of " + item + " found locally, Skipping...")
                         resolve()
                     }
                 } catch (e) {
-                    await downloadRelative(item._)
+                    await downloadRelative(item)
                     resolve()
                 }
             })
         }
+        console.log("[SYNC] Complete.")
         (await mainWindow).webContents.send("syncOver")
     })
 }
