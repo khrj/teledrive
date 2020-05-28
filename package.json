@@ -72,5 +72,5 @@
         "make": "electron-forge make",
         "start": "electron-forge start"
     },
-    "version": "0.1"
+    "version": "0.3"
 }
