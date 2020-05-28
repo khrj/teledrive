@@ -9,16 +9,10 @@ let lock = false
 
 const addFile = async (filePath, myID, client, tag, appFilesPath) => {
     return new Promise(async resolve => {
-        console.log("ADDING FILE: " + filePath)
-        console.log("TAG IS: " + tag)
+        console.log("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
+        console.log("[UPLOAD] TAG IS: " + tag)
 
         let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
-        let existingFile = false
-        masterData.files.forEach((file) => {
-            if (file._ === filePath.split('TeleDriveSync').pop()) {
-                existingFile = file
-            }
-        })
 
         const writeCloud = async (newJSON, filePath, changeTypeAdd) => {
             // Overwrite Master File
@@ -98,36 +92,29 @@ const addFile = async (filePath, myID, client, tag, appFilesPath) => {
         let sha = createHash("sha256")
         sha.update(await fsPromise.readFile(filePath))
         let hash = sha.digest('hex')
-        console.log("HASH FOR FILE " + filePath + " IS: " + hash)
+        console.log("[UPLOAD] HASH FOR FILE " + filePath + " IS: " + hash)
 
-        if (existingFile) {
-            if (existingFile.hashes.slice(-1)[0] === hash) { // Exact duplicate
-                console.log(filePath + " is exact duplicate of " + existingFile._ + ", skipping...")
+        if (filePath.split('TeleDriveSync').pop() in masterData.files) {
+            let existingFile = masterData.files[filePath.split('TeleDriveSync').pop()]
+            if (existingFile.slice(-1)[0] === hash) { // Exact duplicate
+                console.log("[UPLOAD] " + filePath + " is exact duplicate of " + existingFile + ", skipping...")
                 resolve()
-            } else if (existingFile.hashes.slice(0, -1).indexOf(hash) >= 0) { // CONFLICT, FILE IS OLD VERSION OF NEW CLOUD VERSION
+            } else if (existingFile.slice(0, -1).indexOf(hash) >= 0) { // CONFLICT, FILE IS OLD VERSION OF NEW CLOUD VERSION
                 //TODO
-                console.log("[UPLOAD CONFLICT] Cloud has newer version of " + filePath + ", skipping...")
+                console.log("[UPLOAD] [CONFLICT] Cloud has newer version of " + filePath + ", skipping...")
                 resolve()
             } else { // File was changed now or when TeleDrive was not running
-                let index;
-                for (let i = 0; i < masterData.files.length; i++) {
-                    if (masterData.files[i]._ === filePath.split('TeleDriveSync').pop()) {
-                        index = i
-                        break
-                    }
-                }
+                masterData.files[filePath.split('TeleDriveSync').pop()].push(hash)
 
-                masterData.files[index].hashes.push(hash)
-
-                console.log("[CHANGE FILE] NEW JSON IS:")
+                console.log("[UPLOAD] [CHANGE] NEW JSON IS:")
                 console.log(masterData)
 
                 await writeCloud(masterData, filePath, false)
                 resolve()
             }
         } else { // New File
-            masterData.files.push({_: filePath.split('TeleDriveSync').pop(), hashes: [hash]})
-            console.log("[ADD FILE] NEW JSON IS:")
+            masterData.files[filePath.split('TeleDriveSync').pop()] = [hash]
+            console.log("[UPLOAD] [ADD] NEW JSON IS:")
             console.log(masterData)
             await writeCloud(masterData, filePath, true)
             resolve()
@@ -150,7 +137,7 @@ const removeFile = async (filePath, myID, client, tag, appFilesPath) => {
 module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersion) => {
     const evalQueue = () => {
         lock = true
-        console.log("EVALUATING")
+        console.log("[QUEUE] EVALUATING")
         const next = () => {
             new Promise(resolve => {
                 let change = queue[0]
@@ -182,13 +169,14 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                     next()
                 } else {
                     lock = false
-                    console.log("COMPLETED EVALUATION")
+                    console.log("[QUEUE] COMPLETED EVALUATION")
                 }
             })
         }
         next()
     }
 
+    // Verify Master File exits (VerifyMasterFile)
     await new Promise(async resolve => {
         try { // Check if the file already exists
             await fsPromise.access(join(appFilesPath, "TeleDriveMaster.json")) // Will throw err if file doesn't exist
@@ -205,7 +193,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                 await fsPromise.writeFile(join(appFilesPath, "TeleDriveMaster.json"), JSON.stringify({
                     _: "TeleDriveMaster",
                     version: appVersion,
-                    files: []
+                    files: {}
                 }))
 
                 await client.api.sendMessage({
@@ -241,11 +229,11 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                         ctx.update.file.remote.id === results.response.messages[0].content.document.document.remote.id) {
                         try {
                             await fsPromise.copyFile(ctx.update.file.local.path, join(appFilesPath, 'TeleDriveMaster.json'))
-                            console.log('Successfully moved')
+                            console.log('[MASTER] [INITIAL FETCH] Successfully moved')
                             await client.api.deleteFile({fileId: ctx.update.file.id})
                             resolve()
                         } catch (e) {
-                            console.log("Airgram is stupid at times. Nothing to worry about") // This is because ctx.update.file.local.isDownloadingCompleted is true even when it hasn't completed
+                            console.log("[MASTER] [INITIAL FETCH] Airgram is stupid at times. Nothing to worry about") // This is because ctx.update.file.local.isDownloadingCompleted is true even when it hasn't completed
                         }
                     }
                     return next()
@@ -267,20 +255,20 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
             }
         })
         .on('change', path => {
-            console.log('File', path, 'has been changed')
+            console.log('[WATCHER] File', path, 'has been changed')
             queue.push({_: "change", path: path})
             if (!lock) {
                 evalQueue()
             }
         })
         .on('unlink', path => {
-            console.log('File', path, 'has been removed')
+            console.log('[WATCHER] File', path, 'has been removed')
             queue.push({_: "remove", path: path})
             if (!lock) {
                 evalQueue()
             }
         })
         .on('error', error => {
-            console.error('Error occurred', error)
+            console.error('[WATCHER] [ERROR] Error occurred', error)
         })
 }
