@@ -9,24 +9,33 @@ const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
  * @return {Promise<string>}
  * */
 const getTeleDir = () => {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
+        const fsPromise = require('fs').promises
         let stored = store.get('teleDir')
         if (stored) {
-            resolve(stored)
-        }
-
-        ipcMain.on('openFileDialog', async () => {
-            let response = await dialog.showOpenDialog({properties: ['openDirectory']})
-            if (!response.canceled) {
-                let teleDir = join(response.filePaths[0], 'TeleDriveSync');
-                try {
-                    store.set('teleDir', teleDir)
-                } catch (e) {
-                    console.error(e)
-                }
-                resolve(teleDir)
+            try {
+                await fsPromise.access(stored)
+            } catch (e) {
+                await fsPromise.mkdir(stored, {recursive: true})
+            } finally {
+                resolve(stored)
             }
-        })
+        } else {
+            ipcMain.on('openFileDialog', async () => {
+                let response = await dialog.showOpenDialog({properties: ['openDirectory']})
+                if (!response.canceled) {
+                    let teleDir = join(response.filePaths[0], 'TeleDriveSync');
+                    store.set('teleDir', teleDir)
+                    try {
+                        await fsPromise.access(teleDir)
+                    } catch (e) {
+                        await fsPromise.mkdir(teleDir, {recursive: true})
+                    } finally {
+                        resolve(teleDir)
+                    }
+                }
+            })
+        }
     })
 }
 
@@ -143,17 +152,11 @@ module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion)
             })
         }
 
-        const fs = require('fs')
-
         /**
          * @type {string}
          */
         let teleDir = await getTeleDir();
 
-        if (!fs.existsSync(teleDir)) {
-            await fs.mkdir(teleDir, {}, () => {
-            })
-        }
         (await mainWindow).webContents.send('selectedDir', teleDir)
         addWatches(teleDir, me.id, client, appFilesPath, appVersion)
     }
@@ -173,47 +176,34 @@ module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion)
  * @param {Promise<BrowserWindow>} mainWindow
  */
 module.exports.bindFetcher = (client, appFilesPath, mainWindow) => {
-    const fs = require('fs')
     ipcMain.on('syncAll', async () => {
+        const fsPromise = require('fs').promises
         let myID = toObject(await (await client).api.getMe()).id
         let teleDir = await getTeleDir()
 
-        // Ensure teleDir is on disk
-        await new Promise(resolve => {
-            if (!fs.existsSync(teleDir)) {
-                fs.mkdir(teleDir, {recursive: true}, () => {
-                    resolve()
-                })
-            } else {
-                resolve()
-            }
-        })
-
         console.log("SYNCING ALL")
         const downloadRelative = (relativePath) => {
-            return new Promise(resolve => {
+            return new Promise(async resolve => {
                 console.log("NOW DOWNLOADING " + relativePath)
                 // Split path into useful chunks
                 let path = parse(join(teleDir, relativePath))
 
-                fs.mkdir(path.dir, {recursive: true}, async (err) => {
-                    if (err) throw err
-                    let searchResults = await client.api.searchChatMessages({
+                await fsPromise.mkdir(path.dir, {recursive: true})
+                let searchResults = await client.api.searchChatMessages({
                         chatId: myID,
                         query: "#TeleDrive " + relativePath,
                         fromMessageId: 0,
                         limit: 100,
                     })
 
-
-                    let downloadResponse = client.api.downloadFile({
+                let downloadResponse = client.api.downloadFile({
                         fileId: searchResults.response.messages[0].content.document.document.id,
                         priority: 32
                     })
 
-                    console.log(await downloadResponse)
+                console.log(await downloadResponse)
 
-                    client.on('updateFile', async (ctx, next) => {
+                client.on('updateFile', async (ctx, next) => {
                         console.log("Done downloading?")
                         console.log(ctx.update.file.local.isDownloadingCompleted)
 
@@ -228,61 +218,53 @@ module.exports.bindFetcher = (client, appFilesPath, mainWindow) => {
                             console.log("MOVING FILE:")
                             console.log(ctx.update.file.local)
 
-                            fs.copyFile(ctx.update.file.local.path, join(teleDir, relativePath), (err) => {
-                                if (err) {
-                                    console.log("Not an error, suppressing ahahahahahahaha")
-                                    // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
-                                    // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
-                                }
+                            try {
+                                await fsPromise.copyFile(ctx.update.file.local.path, join(teleDir, relativePath))
                                 console.log('Successfully moved')
-                                client.api.deleteFile({fileId: ctx.update.file.id})
+                                await client.api.deleteFile({fileId: ctx.update.file.id})
                                 return resolve()
-                            })
+                            } catch (e) {
+                                // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
+                                // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
+                                console.log("Not an error, suppressing ahahahahahahaha")
+                            }
                         }
                         return next()
                     })
-                })
+
             })
         }
 
-        fs.readFile(join(appFilesPath, 'TeleDriveMaster.json'), async (err, data) => {
-            if (err) throw err
-            let masterData = JSON.parse(data.toString())
-            const {createHash} = require('crypto');
+        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
+        const {createHash} = require('crypto');
 
-            const wait = async () => {
-                for (data of masterData.files) {
-                    await new Promise(resolve => {
-                        fs.access(join(teleDir, data._), fs.constants.F_OK, async (err) => {
-                            if (err) { // If doesn't already exist
-                                await downloadRelative(data._)
-                                resolve()
-                            } else { // If already exists
-                                let sha = createHash("sha256")
-                                let stream = fs.createReadStream(join(teleDir, data._))
-                                stream.on('data', (part) => {
-                                    sha.update(part)
-                                })
-                                stream.on('end', () => {
-                                    let hash = sha.digest('hex')
-                                    console.log("[SYNC] Hash for local file " + join(teleDir, data._) + " is: " + hash)
+        for (const item of masterData.files) {
+            await new Promise(async resolve => {
+                try { // If file already exists on device
+                    await fsPromise.access(join(teleDir, item._))
+                    let sha = createHash("sha256")
+                    sha.update(await fsPromise.readFile(join(teleDir, item._)))
+                    let hash = sha.digest('hex')
+                    console.log("[SYNC] Hash for local file " + join(teleDir, item._) + " is: " + hash)
 
-                                    if (hash === data.hash) { // If exact duplicate
-                                        return resolve() // Don't need to do anything
-                                    } else { // If conflict
-                                        //TODO
-                                    }
-                                })
-                            }
-                        })
-                    })
+                    if (item.hashes.slice(0, -1).indexOf(hash) !== -1) { // If old version
+                        console.log("[SYNC] Old version of file " + item._ + " found locally, Overwriting...")
+                        await downloadRelative(item._) // Same as non-existent
+                        resolve()
+                    } else if (item.hashes.slice(-1)[0] === hash) { // If exact duplicate
+                        console.log("[SYNC] Exact duplicate of " + item._ + " found locally, Skipping...")
+                        resolve() // Don't need to do anything
+                    } else { // If conflicting
+                        //TODO
+                        console.log("[SYNC CONFLICT] Newer version of " + item._ + " found locally, Skipping...")
+                        resolve()
+                    }
+                } catch (e) {
+                    await downloadRelative(item._)
+                    resolve()
                 }
-            }
-
-            await wait();
-
-            (await mainWindow).webContents.send("syncOver")
-
-        })
+            })
+        }
+        (await mainWindow).webContents.send("syncOver")
     })
 }
