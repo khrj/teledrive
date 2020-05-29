@@ -41,20 +41,20 @@
         }
     },
     "dependencies": {
-        "airgram": "^3.0.0",
+        "airgram": "latest",
         "chokidar": "latest",
-        "electron-squirrel-startup": "^1.0.0",
-        "electron-store": "^5.1.1"
+        "electron-squirrel-startup": "latest",
+        "electron-store": "latest"
     },
     "description": "Uses TDlib and Airgram to create a Google Backup and Sync style uploader.",
     "devDependencies": {
-        "@electron-forge/cli": "6.0.0-beta.50",
-        "@electron-forge/maker-deb": "6.0.0-beta.50",
-        "@electron-forge/maker-dmg": "^6.0.0-beta.50",
-        "@electron-forge/maker-rpm": "6.0.0-beta.50",
-        "@electron-forge/maker-squirrel": "6.0.0-beta.50",
-        "@electron-forge/maker-zip": "6.0.0-beta.50",
-        "electron": "^8.2.0"
+        "@electron-forge/cli": "latest",
+        "@electron-forge/maker-deb": "latest",
+        "@electron-forge/maker-dmg": "latest",
+        "@electron-forge/maker-rpm": "latest",
+        "@electron-forge/maker-squirrel": "latest",
+        "@electron-forge/maker-zip": "latest",
+        "electron": "latest"
     },
     "homepage": "https://khushrajrathod.github.io/TeleDrive",
     "keywords": [
