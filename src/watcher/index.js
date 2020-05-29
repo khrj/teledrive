@@ -1,14 +1,15 @@
 const chokidar = require('chokidar')
 const {createHash} = require('crypto');
 const fsPromise = require('fs').promises
-const {join} = require('path')
+const {join, parse} = require('path')
 
 // [{_: ChangeType, path: FilePath}]
 const queue = []
 let lock = false
 
-const addFile = async (filePath, myID, client, tag, appFilesPath) => {
+const addFile = async (filePath, myID, client, appFilesPath) => {
     return new Promise(async resolve => {
+        let tag = '#TeleDrive ' + filePath.split('TeleDriveSync').pop()
         console.log("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
         console.log("[UPLOAD] TAG IS: " + tag)
 
@@ -126,6 +127,94 @@ const removeFile = async (filePath, myID, client, tag, appFilesPath) => {
 
 }
 
+/**
+ * @param {Airgram} client
+ * @param {string} appFilesPath
+ * @param {Promise<BrowserWindow>} mainWindow
+ * @param {string} teleDir
+ * @param {string} myID
+ */
+const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
+    return new Promise(async resolve => {
+        const fsPromise = require('fs').promises
+
+        const downloadRelative = (relativePath) => {
+            return new Promise(async resolve => {
+                console.log("NOW DOWNLOADING " + relativePath)
+                // Split path into useful chunks
+                let path = parse(join(teleDir, relativePath))
+
+                await fsPromise.mkdir(path.dir, {recursive: true})
+                let searchResults = await client.api.searchChatMessages({
+                    chatId: myID,
+                    query: "#TeleDrive " + relativePath,
+                    fromMessageId: 0,
+                    limit: 100,
+                })
+
+                await client.api.downloadFile({
+                    fileId: searchResults.response.messages[0].content.document.document.id,
+                    priority: 32
+                })
+
+                client.on('updateFile', async (ctx, next) => {
+                    if (ctx.update.file.local.isDownloadingCompleted &&
+                        ctx.update.file.remote.id === searchResults.response.messages[0].content.document.document.remote.id) {
+                        console.log("MOVING FILE:")
+                        console.log(ctx.update.file.local)
+
+                        try {
+                            await fsPromise.copyFile(ctx.update.file.local.path, join(teleDir, relativePath))
+                            console.log('Successfully moved')
+                            await client.api.deleteFile({fileId: ctx.update.file.id})
+                            return resolve()
+                        } catch (e) {
+                            // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
+                            // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
+                            console.log("Not an error, suppressing ahahahahahahaha")
+                        }
+                    }
+                    return next()
+                })
+
+            })
+        }
+
+        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
+        const {createHash} = require('crypto');
+
+        for (const item in masterData.files) {
+            await new Promise(async resolve => {
+                try { // Check if file already exists on device
+                    await fsPromise.access(join(teleDir, item)) // If file already exists on device, then go on else throw
+                    let sha = createHash("sha256")
+                    sha.update(await fsPromise.readFile(join(teleDir, item)))
+                    let hash = sha.digest('hex')
+                    console.log("[SYNC] Hash for local file " + join(teleDir, item) + " is: " + hash)
+
+                    if (masterData.files[item].slice(0, -1).indexOf(hash) !== -1) { // If old version
+                        console.log("[SYNC] Old version of file " + item + " found locally, Overwriting...")
+                        await downloadRelative(item) // Same as non-existent
+                        resolve()
+                    } else if (masterData.files[item].slice(-1)[0] === hash) { // If exact duplicate
+                        console.log("[SYNC] Exact duplicate of " + item + " found locally, Skipping...")
+                        resolve() // Don't need to do anything
+                    } else { // If conflicting
+                        //TODO
+                        console.log("[SYNC] [CONFLICT] Newer version of " + item + " found locally, Skipping...")
+                        resolve()
+                    }
+                } catch (e) {
+                    await downloadRelative(item)
+                    resolve()
+                }
+            })
+        }
+
+        (await mainWindow).webContents.send("syncOver")
+        resolve()
+    })
+}
 
 /**
  * @param {string} teleDir
@@ -133,30 +222,30 @@ const removeFile = async (filePath, myID, client, tag, appFilesPath) => {
  * @param {Airgram} client
  * @param {string} appFilesPath
  * @param {*} appVersion
+ * @param {Promise<BrowserWindow>} mainWindow
  */
-module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersion) => {
+module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersion, mainWindow) => {
     const evalQueue = () => {
         lock = true
         console.log("[QUEUE] EVALUATING")
         const next = () => {
             new Promise(resolve => {
                 let change = queue[0]
-                let tag = '#TeleDrive ' + change.path.split('TeleDriveSync').pop()
                 switch (change._) {
                     case 'add':
-                        addFile(change.path, myID, client, tag, appFilesPath).then(() => {
+                        addFile(change.path, myID, client, appFilesPath).then(() => {
                             queue.shift()
                             resolve()
                         })
                         break
                     case 'remove':
-                        removeFile(change.path, myID, client, tag, appFilesPath).then(() => {
+                        removeFile(change.path, myID, client, appFilesPath).then(() => {
                             queue.shift()
                             resolve()
                         })
                         break
-                    case 'change':
-                        addFile(change.path, myID, client, tag, appFilesPath).then(() => {
+                    case 'sync':
+                        syncAll(client, appFilesPath, mainWindow, teleDir, myID).then(() => {
                             queue.shift()
                             resolve()
                         })
@@ -271,4 +360,12 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
         .on('error', error => {
             console.error('[WATCHER] [ERROR] Error occurred', error)
         })
+
+    const {ipcMain} = require('electron')
+    ipcMain.on('syncAll', async () => {
+        queue.push({_: "sync"})
+        if (!lock) {
+            evalQueue()
+        }
+    })
 }
