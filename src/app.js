@@ -48,7 +48,6 @@ app.on('ready', async () => {
     createWindow()
     authenticate(client, mainWindow)
     updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())
-    bindFetcher(client, app.getPath('userData'), mainWindow)
 
     app.on('activate', async () => {
         (await mainWindow).show()
