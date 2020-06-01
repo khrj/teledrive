@@ -152,3 +152,44 @@ body {
 #reDownload > div {
     padding-left: 10px;
 }
+
+#queueButton {
+    display: flex;
+    position: fixed;
+    bottom: 30px;
+    left: 15px;
+    line-height: 1.8rem;
+}
+
+#queueButton > div {
+    padding-left: 10px;
+}
+
+.swal-title {
+    font-size: 16px !important;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21) !important;
+    margin: 0 0 28px !important;
+}
+
+#queueList {
+    width: 100%;
+    height: 490px;
+    border: 1px solid #dfe1e5;
+    border-radius: 10px;
+    color: #777;
+
+    /* Only when queue is populated */
+    display: flex;
+    flex-flow: column;
+    overflow: scroll;
+}
+
+#queueList > div {
+    width: 100%;
+    height: 50px;
+    line-height: 40px;
+    padding: 5px;
+    border-bottom: 1px solid #dfe1e5;
+    color: #000;
+    background-color: #e4ffea;
+}

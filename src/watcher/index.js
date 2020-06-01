@@ -7,7 +7,7 @@ const {join, parse} = require('path')
 const queue = []
 let lock = false
 
-const addFile = async (filePath, myID, client, appFilesPath) => {
+const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
     return new Promise(async resolve => {
         let tag = '#TeleDrive ' + filePath.split('TeleDriveSync').pop()
         console.log("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
@@ -99,7 +99,8 @@ const addFile = async (filePath, myID, client, appFilesPath) => {
             let existingFile = masterData.files[filePath.split('TeleDriveSync').pop()]
             if (existingFile.slice(-1)[0] === hash) { // Exact duplicate
                 console.log("[UPLOAD] " + filePath + " is exact duplicate of " + existingFile + ", skipping...")
-                resolve()
+                resolve();
+                (await mainWindow).webContents.send('shiftQueue')
             } else if (existingFile.slice(0, -1).indexOf(hash) >= 0) { // CONFLICT, FILE IS OLD VERSION OF NEW CLOUD VERSION
                 //TODO
                 console.log("[UPLOAD] [CONFLICT] Cloud has newer version of " + filePath + ", skipping...")
@@ -123,7 +124,7 @@ const addFile = async (filePath, myID, client, appFilesPath) => {
     })
 }
 
-const removeFile = async (filePath, myID, client, tag, appFilesPath) => {
+const removeFile = async (filePath, myID, client, tag, appFilesPath, mainWindow) => {
 
 }
 
@@ -180,6 +181,8 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
             })
         }
 
+        (await mainWindow).webContents.send("syncStarting");
+
         let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
         const {createHash} = require('crypto');
 
@@ -233,13 +236,13 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                 let change = queue[0]
                 switch (change._) {
                     case 'add':
-                        addFile(change.path, myID, client, appFilesPath).then(() => {
+                        addFile(change.path, myID, client, appFilesPath, mainWindow).then(() => {
                             queue.shift()
                             resolve()
                         })
                         break
                     case 'remove':
-                        removeFile(change.path, myID, client, appFilesPath).then(() => {
+                        removeFile(change.path, myID, client, appFilesPath, mainWindow).then(() => {
                             queue.shift()
                             resolve()
                         })
@@ -337,13 +340,16 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
     })
 
     watcher
-        .on('add', path => {
+        .on('add', async path => {
+            console.log('[WATCHER] File', path, 'has been added');
+            (await mainWindow).webContents.send("pushQueue", {_: "add", relativePath: path.split("TeleDriveSync").pop()})
             queue.push({_: "add", path: path})
             if (!lock) {
                 evalQueue()
             }
         })
-        .on('change', path => {
+        .on('change', async path => {
+            (await mainWindow).webContents.send("pushQueue", {_: "change", relativePath: path.split("TeleDriveSync").pop()})
             console.log('[WATCHER] File', path, 'has been changed')
             queue.push({_: "change", path: path})
             if (!lock) {
@@ -363,6 +369,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
 
     const {ipcMain} = require('electron')
     ipcMain.on('syncAll', async () => {
+        (await mainWindow).webContents.send("pushQueue", {_: "sync"})
         queue.push({_: "sync"})
         if (!lock) {
             evalQueue()
