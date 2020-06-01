@@ -1,4 +1,5 @@
 const {ipcRenderer} = require('electron')
+ipcRenderer.setMaxListeners(Infinity);
 
 window.addEventListener('DOMContentLoaded', () => {
     const title = document.getElementById('title')
@@ -10,6 +11,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('input')
     const profilePicture = document.getElementById('profilePicture')
     const syncButton = document.getElementById('reDownload')
+    const queueButton = document.getElementById('queueButton')
+
+    let queue = [];
+    const queueList = document.createElement('div')
+    queueList.id = "queueList"
+    queueList.style.lineHeight = "490px"
+    queueList.innerHTML = "TeleDrive is Idle"
 
     const ensureVisible = () => {
         description.style.display = '' // Setting display to '' resets display to initial state
@@ -102,12 +110,22 @@ window.addEventListener('DOMContentLoaded', () => {
         description.innerHTML = 'Currently syncing <br>' + path
         button.innerHTML = 'CHANGE (WIP)'
         syncButton.style.display = ''
+        queueButton.style.display = ''
         const syncAll = () => {
             syncButton.removeEventListener("click", syncAll)
-            syncButton.innerHTML = 'SYNCING'
+            syncButton.innerHTML = 'WAITING IN QUEUE'
             ipcRenderer.send('syncAll')
         }
+
         syncButton.addEventListener('click', syncAll)
+        queueButton.addEventListener('click', () => {
+            // noinspection JSUnresolvedFunction
+            swal({
+                title: "Queue",
+                content: queueList,
+                button: "Close"
+            })
+        })
     })
 
     ipcRenderer.on('syncOver', _ => {
@@ -125,10 +143,35 @@ window.addEventListener('DOMContentLoaded', () => {
         // Add new listener
         const syncAll = () => {
             syncButton.removeEventListener("click", syncAll)
-            syncButton.innerHTML = 'SYNCING'
+            syncButton.innerHTML = 'WAITING IN QUEUE'
             ipcRenderer.send('syncAll')
         }
         syncButton.addEventListener('click', syncAll)
     })
 
+    ipcRenderer.on('syncStarting', _ => {
+        syncButton.innerHTML = 'SYNCING...'
+    })
+
+    ipcRenderer.on('pushQueue', (event, action) => {
+        queue.push(action)
+        if (queue.length === 1) {
+            queueList.style.lineHeight = ""
+            queueList.innerHTML = ""
+        }
+        let thisAction = document.createElement('div')
+        thisAction.innerHTML = "Add " + queue[queue.length - 1].relativePath
+        queueList.appendChild(thisAction)
+        ipcRenderer.once('shiftQueue', () => {
+            console.log("SHIFTING QUEUE")
+            queue.shift()
+
+            if (queue.length === 0) {
+                queueList.style.lineHeight = "490px"
+                queueList.innerHTML = "TeleDrive is Idle"
+            } else {
+                queueList.removeChild(thisAction)
+            }
+        })
+    })
 })
