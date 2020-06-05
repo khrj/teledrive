@@ -1,6 +1,6 @@
 const {ipcMain, dialog} = require('electron')
 const {Airgram, toObject} = require('airgram')
-const {join, parse} = require('path')
+const {join} = require('path')
 const Store = require('electron-store')
 const store = new Store()
 const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
@@ -50,22 +50,22 @@ module.exports.authenticate = async (client, mainWindow) => {
 
     client.on('updateAuthorizationState', async (ctx, next) => {
         if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
-            await client.api.setAuthenticationPhoneNumber({
+            await ({
                 phoneNumber: await get('phoneNumber', false),
                 settings: {
                     allowFlashCall: false,
                     isCurrentPhoneNumber: false,
                     allowSmsRetrieverApi: false
                 }
-            })
+            } |> client.api.setAuthenticationPhoneNumber)
         } else if (ctx.update.authorizationState._ === "authorizationStateWaitCode") {
-            await client.api.checkAuthenticationCode({
+            await ({
                 code: await get('authCode', false),
-            })
+            } |> client.api.checkAuthenticationCode)
         } else if (ctx.update.authorizationState._ === "authorizationStateWaitPassword") {
-            await client.api.checkAuthenticationPassword({
+            await ({
                 password: await get('password', false),
-            })
+            } |> client.api.checkAuthenticationPassword)
         }
         return next()
     })

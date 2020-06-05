@@ -13,7 +13,7 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
         console.log("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
         console.log("[UPLOAD] TAG IS: " + tag)
 
-        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
+        let masterData = JSON.parse((await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'))).toString())
 
         const writeCloud = async (newJSON, filePath, changeTypeAdd) => {
             // Overwrite Master File
@@ -21,7 +21,7 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
             console.log('Overwrote Master File');
 
             // Re-attach Master File
-            await client.api.editMessageMedia({
+            await ({
                 chatId: myID,
                 messageId: (await client.api.searchChatMessages({
                     chatId: myID,
@@ -42,10 +42,10 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
                             "Your files will still be backed up to telegram but you will have to manually restore them."
                     }
                 }
-            })
+            } |> client.api.editMessageMedia)
 
             if (changeTypeAdd) {
-                await client.api.sendMessage({
+                await ({
                     chatId: myID,
                     replyToMessageId: 0,
                     options: {
@@ -62,7 +62,7 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
                             text: tag
                         }
                     }
-                })
+                } |> client.api.sendMessage)
             } else {
                 let searchResults = await client.api.searchChatMessages({
                     chatId: myID,
@@ -124,8 +124,9 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
     })
 }
 
+//noinspection JSUnusedLocalSymbols
 const removeFile = async (filePath, myID, client, tag, appFilesPath, mainWindow) => {
-
+  //TODO
 }
 
 /**
@@ -146,12 +147,12 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
                 let path = parse(join(teleDir, relativePath))
 
                 await fsPromise.mkdir(path.dir, {recursive: true})
-                let searchResults = await client.api.searchChatMessages({
+                let searchResults = await ({
                     chatId: myID,
                     query: "#TeleDrive " + relativePath,
                     fromMessageId: 0,
                     limit: 100,
-                })
+                } |> client.api.searchChatMessages)
 
                 await client.api.downloadFile({
                     fileId: searchResults.response.messages[0].content.document.document.id,
@@ -181,9 +182,10 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
             })
         }
 
+        // noinspection JSUnresolvedVariable
         (await mainWindow).webContents.send("syncStarting");
 
-        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'), {encoding: "utf8"}))
+        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json')).toString())
         const {createHash} = require('crypto');
 
         for (const item in masterData.files) {
@@ -214,6 +216,7 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
             })
         }
 
+        // noinspection JSUnresolvedVariable
         (await mainWindow).webContents.send("syncOver")
         resolve()
     })
@@ -274,12 +277,12 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
             await fsPromise.access(join(appFilesPath, "TeleDriveMaster.json")) // Will throw err if file doesn't exist
             resolve() // If the file already exists
         } catch (err) { // If the file doesn't exist
-            let results = await client.api.searchChatMessages({
+            let results = await ({
                 chatId: myID,
                 query: "#TeleDriveMaster",
                 fromMessageId: 0,
                 limit: 100,
-            })
+            } |> client.api.searchChatMessages)
 
             if (results.response.totalCount === 0) { // If no cloud masterFile yet
                 await fsPromise.writeFile(join(appFilesPath, "TeleDriveMaster.json"), JSON.stringify({
@@ -288,7 +291,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                     files: {}
                 }))
 
-                await client.api.sendMessage({
+                await ({
                     chatId: myID,
                     replyToMessageId: 0,
                     options: {
@@ -308,7 +311,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                                 "Your files will still be backed up to telegram but you will have to manually restore them."
                         }
                     }
-                })
+                } |> client.api.sendMessage)
                 resolve()
             } else {
                 await client.api.downloadFile({
@@ -342,6 +345,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
     watcher
         .on('add', async path => {
             console.log('[WATCHER] File', path, 'has been added');
+            // noinspection JSUnresolvedVariable
             (await mainWindow).webContents.send("pushQueue", {_: "add", relativePath: path.split("TeleDriveSync").pop()})
             queue.push({_: "add", path: path})
             if (!lock) {
@@ -349,6 +353,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
             }
         })
         .on('change', async path => {
+            // noinspection JSUnresolvedVariable
             (await mainWindow).webContents.send("pushQueue", {_: "change", relativePath: path.split("TeleDriveSync").pop()})
             console.log('[WATCHER] File', path, 'has been changed')
             queue.push({_: "change", path: path})
@@ -369,6 +374,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
 
     const {ipcMain} = require('electron')
     ipcMain.on('syncAll', async () => {
+        // noinspection JSUnresolvedVariable
         (await mainWindow).webContents.send("pushQueue", {_: "sync"})
         queue.push({_: "sync"})
         if (!lock) {
