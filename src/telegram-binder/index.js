@@ -50,22 +50,22 @@ module.exports.authenticate = async (client, mainWindow) => {
 
     client.on('updateAuthorizationState', async (ctx, next) => {
         if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
-            await ({
+            await client.api.setAuthenticationPhoneNumber({
                 phoneNumber: await get('phoneNumber', false),
                 settings: {
                     allowFlashCall: false,
                     isCurrentPhoneNumber: false,
                     allowSmsRetrieverApi: false
                 }
-            } |> client.api.setAuthenticationPhoneNumber)
+            })
         } else if (ctx.update.authorizationState._ === "authorizationStateWaitCode") {
-            await ({
+            await client.api.checkAuthenticationCode({
                 code: await get('authCode', false),
-            } |> client.api.checkAuthenticationCode)
+            })
         } else if (ctx.update.authorizationState._ === "authorizationStateWaitPassword") {
-            await ({
+            await client.api.checkAuthenticationPassword({
                 password: await get('password', false),
-            } |> client.api.checkAuthenticationPassword)
+            })
         }
         return next()
     })

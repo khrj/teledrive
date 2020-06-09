@@ -2,18 +2,61 @@ const chokidar = require('chokidar')
 const {createHash} = require('crypto');
 const fsPromise = require('fs').promises
 const {join, parse} = require('path')
+const {ipcMain} = require('electron')
 
 // [{_: ChangeType, path: FilePath}]
 const queue = []
 let lock = false
 
-const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
+const downloadRelative = (relativePath, client, teleDir, myID) => {
+    return new Promise(async resolve => {
+        console.log("NOW DOWNLOADING " + relativePath)
+        // Split path into useful chunks
+        let path = parse(join(teleDir, relativePath))
+
+        await fsPromise.mkdir(path.dir, {recursive: true})
+        let searchResults = await client.api.searchChatMessages ({
+            chatId: myID,
+            query: "#TeleDrive " + relativePath,
+            fromMessageId: 0,
+            limit: 100,
+        })
+
+        await client.api.downloadFile({
+            fileId: searchResults.response.messages[0].content.document.document.id,
+            priority: 32
+        })
+
+        client.on('updateFile', async (ctx, next) => {
+            if (ctx.update.file.local.isDownloadingCompleted &&
+                ctx.update.file.remote.id === searchResults.response.messages[0].content.document.document.remote.id) {
+                console.log("MOVING FILE:")
+                console.log(ctx.update.file.local)
+
+                try {
+                    await fsPromise.copyFile(ctx.update.file.local.path, join(teleDir, relativePath))
+                    console.log('Successfully moved')
+                    await client.api.deleteFile({fileId: ctx.update.file.id})
+                    return resolve()
+                } catch (e) {
+                    // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
+                    // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
+                    console.log("Not an error, suppressing ahahahahahahaha")
+                }
+            }
+            return next()
+        })
+
+    })
+}
+
+const addFile = async (filePath, myID, client, appFilesPath, mainWindow, teleDir) => {
     return new Promise(async resolve => {
         let tag = '#TeleDrive ' + filePath.split('TeleDriveSync').pop()
         console.log("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
         console.log("[UPLOAD] TAG IS: " + tag)
 
-        let masterData = JSON.parse((await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'))).toString())
+        let masterData = JSON.parse((await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'))))
 
         const writeCloud = async (newJSON, filePath, changeTypeAdd) => {
             // Overwrite Master File
@@ -21,7 +64,7 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
             console.log('Overwrote Master File');
 
             // Re-attach Master File
-            await ({
+            await client.api.editMessageMedia({
                 chatId: myID,
                 messageId: (await client.api.searchChatMessages({
                     chatId: myID,
@@ -42,10 +85,10 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
                             "Your files will still be backed up to telegram but you will have to manually restore them."
                     }
                 }
-            } |> client.api.editMessageMedia)
+            })
 
             if (changeTypeAdd) {
-                await ({
+                await client.api.sendMessage({
                     chatId: myID,
                     replyToMessageId: 0,
                     options: {
@@ -62,7 +105,7 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
                             text: tag
                         }
                     }
-                } |> client.api.sendMessage)
+                } )
             } else {
                 let searchResults = await client.api.searchChatMessages({
                     chatId: myID,
@@ -98,27 +141,45 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow) => {
         if (filePath.split('TeleDriveSync').pop() in masterData.files) {
             let existingFile = masterData.files[filePath.split('TeleDriveSync').pop()]
             if (existingFile.slice(-1)[0] === hash) { // Exact duplicate
-                console.log("[UPLOAD] " + filePath + " is exact duplicate of " + existingFile + ", skipping...")
+                console.log("[UPLOAD] " + filePath + " is exact duplicate of " + filePath.split('TeleDriveSync').pop() + ", skipping...")
                 resolve();
                 (await mainWindow).webContents.send('shiftQueue')
             } else if (existingFile.slice(0, -1).indexOf(hash) >= 0) { // CONFLICT, FILE IS OLD VERSION OF NEW CLOUD VERSION
-                //TODO
-                console.log("[UPLOAD] [CONFLICT] Cloud has newer version of " + filePath + ", skipping...")
-                resolve()
+                console.log("[UPLOAD] [CONFLICT] Cloud has newer or unknown version of " + filePath + ", prompting...");
+                (await mainWindow).focus();
+                (await mainWindow).webContents.send("uploadConflict", filePath.split('TeleDriveSync').pop());
+                ipcMain.once('conflictResolved', async (_, toOverwrite) => {
+                    console.log("[RESOLVED]")
+                    if (toOverwrite) {
+                        masterData.files[filePath.split('TeleDriveSync').pop()].push(hash)
+                        console.log("[UPLOAD] [FORCE] NEW JSON IS:")
+                        console.log(masterData)
+                        await writeCloud(masterData, filePath, false);
+                        (await mainWindow).webContents.send('shiftQueue')
+                        resolve()
+                    } else {
+                        await downloadRelative(filePath.split('TeleDriveSync').pop(), client, teleDir, myID)
+                        console.log("[SYNC] [FORCE] FILE: " + filePath);
+                        (await mainWindow).webContents.send('shiftQueue')
+                        resolve()
+                    }
+                })
             } else { // File was changed now or when TeleDrive was not running
                 masterData.files[filePath.split('TeleDriveSync').pop()].push(hash)
 
                 console.log("[UPLOAD] [CHANGE] NEW JSON IS:")
                 console.log(masterData)
 
-                await writeCloud(masterData, filePath, false)
+                await writeCloud(masterData, filePath, false);
+                (await mainWindow).webContents.send('shiftQueue')
                 resolve()
             }
         } else { // New File
             masterData.files[filePath.split('TeleDriveSync').pop()] = [hash]
             console.log("[UPLOAD] [ADD] NEW JSON IS:")
             console.log(masterData)
-            await writeCloud(masterData, filePath, true)
+            await writeCloud(masterData, filePath, true);
+            (await mainWindow).webContents.send('shiftQueue')
             resolve()
         }
     })
@@ -140,52 +201,10 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
     return new Promise(async resolve => {
         const fsPromise = require('fs').promises
 
-        const downloadRelative = (relativePath) => {
-            return new Promise(async resolve => {
-                console.log("NOW DOWNLOADING " + relativePath)
-                // Split path into useful chunks
-                let path = parse(join(teleDir, relativePath))
-
-                await fsPromise.mkdir(path.dir, {recursive: true})
-                let searchResults = await ({
-                    chatId: myID,
-                    query: "#TeleDrive " + relativePath,
-                    fromMessageId: 0,
-                    limit: 100,
-                } |> client.api.searchChatMessages)
-
-                await client.api.downloadFile({
-                    fileId: searchResults.response.messages[0].content.document.document.id,
-                    priority: 32
-                })
-
-                client.on('updateFile', async (ctx, next) => {
-                    if (ctx.update.file.local.isDownloadingCompleted &&
-                        ctx.update.file.remote.id === searchResults.response.messages[0].content.document.document.remote.id) {
-                        console.log("MOVING FILE:")
-                        console.log(ctx.update.file.local)
-
-                        try {
-                            await fsPromise.copyFile(ctx.update.file.local.path, join(teleDir, relativePath))
-                            console.log('Successfully moved')
-                            await client.api.deleteFile({fileId: ctx.update.file.id})
-                            return resolve()
-                        } catch (e) {
-                            // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
-                            // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
-                            console.log("Not an error, suppressing ahahahahahahaha")
-                        }
-                    }
-                    return next()
-                })
-
-            })
-        }
-
         // noinspection JSUnresolvedVariable
         (await mainWindow).webContents.send("syncStarting");
 
-        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json')).toString())
+        let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json')))
         const {createHash} = require('crypto');
 
         for (const item in masterData.files) {
@@ -199,18 +218,14 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
 
                     if (masterData.files[item].slice(0, -1).indexOf(hash) !== -1) { // If old version
                         console.log("[SYNC] Old version of file " + item + " found locally, Overwriting...")
-                        await downloadRelative(item) // Same as non-existent
+                        await downloadRelative(item, client, teleDir, myID) // Same as non-existent
                         resolve()
                     } else if (masterData.files[item].slice(-1)[0] === hash) { // If exact duplicate
                         console.log("[SYNC] Exact duplicate of " + item + " found locally, Skipping...")
                         resolve() // Don't need to do anything
-                    } else { // If conflicting
-                        //TODO
-                        console.log("[SYNC] [CONFLICT] Newer version of " + item + " found locally, Skipping...")
-                        resolve()
                     }
-                } catch (e) {
-                    await downloadRelative(item)
+                } catch (e) { // Non-existent
+                    await downloadRelative(item, client, teleDir, myID)
                     resolve()
                 }
             })
@@ -239,7 +254,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                 let change = queue[0]
                 switch (change._) {
                     case 'add':
-                        addFile(change.path, myID, client, appFilesPath, mainWindow).then(() => {
+                        addFile(change.path, myID, client, appFilesPath, mainWindow, teleDir).then(() => {
                             queue.shift()
                             resolve()
                         })
@@ -258,6 +273,9 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                         break
                     case 'error':
                         throw change.path
+                    default:
+                        console.log("[FATAL] WTF")
+                        throw change
                 }
             }).then(() => {
                 if (queue.length > 0) {
@@ -277,12 +295,12 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
             await fsPromise.access(join(appFilesPath, "TeleDriveMaster.json")) // Will throw err if file doesn't exist
             resolve() // If the file already exists
         } catch (err) { // If the file doesn't exist
-            let results = await ({
+            let results = await client.api.searchChatMessages({
                 chatId: myID,
                 query: "#TeleDriveMaster",
                 fromMessageId: 0,
                 limit: 100,
-            } |> client.api.searchChatMessages)
+            })
 
             if (results.response.totalCount === 0) { // If no cloud masterFile yet
                 await fsPromise.writeFile(join(appFilesPath, "TeleDriveMaster.json"), JSON.stringify({
@@ -291,7 +309,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                     files: {}
                 }))
 
-                await ({
+                await client.api.sendMessage({
                     chatId: myID,
                     replyToMessageId: 0,
                     options: {
@@ -311,7 +329,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                                 "Your files will still be backed up to telegram but you will have to manually restore them."
                         }
                     }
-                } |> client.api.sendMessage)
+                })
                 resolve()
             } else {
                 await client.api.downloadFile({
@@ -356,7 +374,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
             // noinspection JSUnresolvedVariable
             (await mainWindow).webContents.send("pushQueue", {_: "change", relativePath: path.split("TeleDriveSync").pop()})
             console.log('[WATCHER] File', path, 'has been changed')
-            queue.push({_: "change", path: path})
+            queue.push({_: "add", path: path})
             if (!lock) {
                 evalQueue()
             }
