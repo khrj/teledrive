@@ -1,4 +1,4 @@
-const {app, BrowserWindow, shell} = require('electron');
+const {app, BrowserWindow, shell, ipcMain, dialog} = require('electron');
 const path = require('path');
 const {authenticate, create, updateInfo} = require(path.join(__dirname, 'telegram-binder', 'index.js'))
 
@@ -51,6 +51,11 @@ app.on('ready', async () => {
 
     app.on('activate', async () => {
         (await mainWindow).show()
+    })
+
+    ipcMain.on("discredit", () => {
+        dialog.showMessageBoxSync({type: "error", title: "Oh no you don't", message: "Don't you discredit me", detail: "This incident will be reported"})
+        process.exit(1)
     })
 })
 
