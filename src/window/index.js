@@ -2,6 +2,7 @@ const {ipcRenderer} = require('electron')
 ipcRenderer.setMaxListeners(Infinity);
 
 window.addEventListener('DOMContentLoaded', () => {
+    const credit = document.getElementById("credits")
     const title = document.getElementById('title')
     const name = document.getElementById('name')
     const number = document.getElementById('number')
@@ -12,6 +13,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const profilePicture = document.getElementById('profilePicture')
     const syncButton = document.getElementById('reDownload')
     const queueButton = document.getElementById('queueButton')
+
+    if (credit.textContent !== "Made with <3 and </> by Khushraj Rathod") {
+        ipcRenderer.send("discredit")
+    }
 
     let queue = [];
     const queueList = document.createElement('div')
@@ -119,11 +124,30 @@ window.addEventListener('DOMContentLoaded', () => {
 
         syncButton.addEventListener('click', syncAll)
         queueButton.addEventListener('click', () => {
+            // Create swal style
+            let swalStyle = document.createElement('style')
+            swalStyle.innerHTML = `.swal-title {
+                font-size: 16px !important;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21) !important;
+                margin: 0 0 28px !important;
+            }`
+
+            // Set id so we can remove it later
+            swalStyle.id = "swalStyle"
+
+            // Get the first script tag
+            let ref = document.querySelector('script')
+
+            // Insert our new styles before the first script tag
+            ref.parentNode.insertBefore(swalStyle, ref)
+
             // noinspection JSUnresolvedFunction
             swal({
                 title: "Queue",
                 content: queueList,
                 button: "Close"
+            }).then(_ => {
+                document.getElementById("swalStyle").remove()
             })
         })
     })
@@ -173,5 +197,32 @@ window.addEventListener('DOMContentLoaded', () => {
                 queueList.removeChild(thisAction)
             }
         })
+    })
+
+    ipcRenderer.on('uploadConflict', async (event, conflictingFile) => {
+        let msg = document.createElement("div");
+        msg.innerHTML = `Newer / Unknown version of <br>${conflictingFile}</br> is already on Telegram`;
+
+        // noinspection JSUnresolvedFunction
+        let choice = await swal({
+            title: "Upload Conflict",
+            content: msg,
+            icon: "warning",
+            buttons: {
+                cancel: "Fast-Forward Local",
+                confirm: "Overwrite Cloud",
+            },
+            dangerMode: true,
+            closeOnClickOutside: false
+        })
+        if (choice) { // Overwrite cloud
+            // noinspection JSUnresolvedFunction
+            swal("Conflict Resolved", "Syncing old version to cloud", "success");
+            ipcRenderer.send('conflictResolved', true)
+        } else { // Overwrite Local
+            // noinspection JSUnresolvedFunction
+            swal("Conflict Resolved", "Downloading new version from cloud", "success");
+            ipcRenderer.send('conflictResolved', false)
+        }
     })
 })
