@@ -199,7 +199,7 @@ const removeFile = async (filePath, myID, client, tag, appFilesPath, mainWindow)
  */
 const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
     return new Promise(async resolve => {
-        const fsPromise = require('fs').promises
+        const fsPromise = require('fs').promises;
 
         // noinspection JSUnresolvedVariable
         (await mainWindow).webContents.send("syncStarting");
