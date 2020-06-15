@@ -9,4 +9,5 @@ teledrive@0.5:
     chokidar latest
     electron-squirrel-startup latest
     electron-store latest
+    ncp "^2.0.0"
 
