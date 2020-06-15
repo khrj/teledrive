@@ -13,8 +13,8 @@ const createWindow = async () => {
         let window = new BrowserWindow({
             width: 425,
             height: 750,
-            minWidth: 425,
-            minHeight: 750,
+            minWidth: 400,
+            minHeight: 700,
             titleBarStyle: 'hiddenInset',
             webPreferences: {
                 nodeIntegration: true

@@ -205,7 +205,7 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
         (await mainWindow).webContents.send("syncStarting");
 
         let masterData = JSON.parse(await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json')))
-        const {createHash} = require('crypto');
+        const {createHash} = require('crypto')
 
         for (const item in masterData.files) {
             await new Promise(async resolve => {

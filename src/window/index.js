@@ -101,8 +101,9 @@ window.addEventListener('DOMContentLoaded', () => {
         description.style.display = ''
         button.innerHTML = 'Open'
 
-        button.addEventListener('click', () => {
+        button.addEventListener('click', function f () {
             ipcRenderer.send('openFileDialog')
+            button.removeEventListener('click', f)
         })
 
         button.style.display = ''
@@ -113,16 +114,21 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log('selectedDir', path)
         title.innerHTML = 'Setup Successfully'
         description.innerHTML = 'Currently syncing <br>' + path
-        button.innerHTML = 'CHANGE (WIP)'
+        button.innerHTML = 'CHANGE'
+
+        button.addEventListener('click', function f () {
+            ipcRenderer.send('changeTeleDir')
+        })
+
         syncButton.style.display = ''
         queueButton.style.display = ''
-        const syncAll = () => {
+
+        syncButton.addEventListener('click', function syncAll () {
             syncButton.removeEventListener("click", syncAll)
             syncButton.innerHTML = 'WAITING IN QUEUE'
             ipcRenderer.send('syncAll')
-        }
+        })
 
-        syncButton.addEventListener('click', syncAll)
         queueButton.addEventListener('click', () => {
             // Create swal style
             let swalStyle = document.createElement('style')
@@ -224,5 +230,42 @@ window.addEventListener('DOMContentLoaded', () => {
             swal("Conflict Resolved", "Downloading new version from cloud", "success");
             ipcRenderer.send('conflictResolved', false)
         }
+    })
+
+    ipcRenderer.on('movingFiles',  _ => {
+        let loader = document.createElement("div")
+        loader.style.display = "flex"
+        loader.style.alignItems = "center"
+        loader.style.justifyContent = "center"
+        loader.innerHTML = `<div id="loader"></div>`
+
+        // noinspection JSUnresolvedFunction
+        swal({
+            title: "Moving Files...",
+            content: loader,
+            closeOnClickOutside: false
+        })
+    })
+
+    ipcRenderer.on('restarting', _ => {
+        let timerElement = document.createElement("div")
+        timerElement.innerHTML = `<h1>5</h1>`
+
+        // noinspection JSUnresolvedFunction
+        swal({
+            title: "Relaunching App...",
+            icon: "info",
+            content: timerElement,
+            closeOnClickOutside: false
+        })
+
+        let count = 5
+        let timer = setInterval(_ => {
+            if (count < 0) {
+                clearInterval(timer)
+            }
+            count--
+            timerElement.innerHTML = `<h1>${count.toString()}</h1>`
+        }, 1000)
     })
 })
