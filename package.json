@@ -44,7 +44,8 @@
         "airgram": "latest",
         "chokidar": "latest",
         "electron-squirrel-startup": "latest",
-        "electron-store": "latest"
+        "electron-store": "latest",
+        "ncp": "^2.0.0"
     },
     "description": "Uses TDlib and Airgram to create a Google Backup and Sync style uploader.",
     "devDependencies": {
