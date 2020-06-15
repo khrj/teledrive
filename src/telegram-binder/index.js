@@ -8,31 +8,10 @@ const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
 /**
  * @return {Promise<string>}
  * */
-const getTeleDir = (mainWindow) => {
+const getTeleDir = () => {
     return new Promise(async resolve => {
         const fsPromise = require('fs').promises
         let stored = store.get('teleDir')
-        ipcMain.on('changeTeleDir', async () => {
-            let response = await dialog.showOpenDialog({properties: ['openDirectory']})
-            if (!response.canceled) {
-                let teleDir = join(response.filePaths[0], 'TeleDriveSync');
-                store.set('teleDir', teleDir)
-                try {
-                    await fsPromise.access(teleDir)
-                } catch (e) {
-                    await fsPromise.mkdir(teleDir, {recursive: true})
-                } finally {
-                    (await mainWindow).webContents.send("movingFiles")
-                    setTimeout(async _ => {
-                        (await mainWindow).webContents.send("restarting")
-                        setTimeout(_ => {
-                            app.relaunch()
-                            app.quit()
-                        }, 5000)
-                    }, 5000)
-                }
-            }
-        })
         if (stored) {
             try {
                 await fsPromise.access(stored)
@@ -173,7 +152,36 @@ module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion)
         /**
          * @type {string}
          */
-        let teleDir = await getTeleDir(mainWindow);
+        let teleDir = await getTeleDir()
+        ipcMain.on('changeTeleDir', async () => {
+            const fsPromise = require('fs').promises
+            let oldDir = store.get('teleDir')
+            let response = await dialog.showOpenDialog({properties: ['openDirectory']})
+            if (!response.canceled) {
+                let teleDir = join(response.filePaths[0], 'TeleDriveSync');
+                store.set('teleDir', teleDir)
+                try {
+                    await fsPromise.access(teleDir)
+                } catch (e) {
+                    await fsPromise.mkdir(teleDir, {recursive: true})
+                } finally {
+                    (await mainWindow).webContents.send("movingFiles")
+                    const { ncp } = require('ncp')
+                    const fsPromise = require('fs').promises
+                    ncp(oldDir, teleDir, async err => {
+                        if (err) {
+                            return console.error(err)
+                        }
+                        await fsPromise.rmdir(oldDir, { recursive: true });
+                        (await mainWindow).webContents.send("restarting")
+                        setTimeout(_ => {
+                            app.relaunch()
+                            app.quit()
+                        }, 5000)
+                    })
+                }
+            }
+        });
 
         (await mainWindow).webContents.send('selectedDir', teleDir)
         addWatches(teleDir, me.id, client, appFilesPath, appVersion, mainWindow)
