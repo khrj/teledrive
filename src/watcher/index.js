@@ -185,11 +185,6 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow, teleDir
     })
 }
 
-//noinspection JSUnusedLocalSymbols
-const removeFile = async (filePath, myID, client, tag, appFilesPath, mainWindow) => {
-  //TODO
-}
-
 /**
  * @param {Airgram} client
  * @param {string} appFilesPath
@@ -255,12 +250,6 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                 switch (change._) {
                     case 'add':
                         addFile(change.path, myID, client, appFilesPath, mainWindow, teleDir).then(() => {
-                            queue.shift()
-                            resolve()
-                        })
-                        break
-                    case 'remove':
-                        removeFile(change.path, myID, client, appFilesPath, mainWindow).then(() => {
                             queue.shift()
                             resolve()
                         })
@@ -375,13 +364,6 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
             (await mainWindow).webContents.send("pushQueue", {_: "change", relativePath: path.split("TeleDriveSync").pop()})
             console.log('[WATCHER] File', path, 'has been changed')
             queue.push({_: "add", path: path})
-            if (!lock) {
-                evalQueue()
-            }
-        })
-        .on('unlink', path => {
-            console.log('[WATCHER] File', path, 'has been removed')
-            queue.push({_: "remove", path: path})
             if (!lock) {
                 evalQueue()
             }

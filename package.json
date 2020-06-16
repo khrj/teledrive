@@ -13,12 +13,6 @@
                     "name": "@electron-forge/maker-squirrel"
                 },
                 {
-                    "name": "@electron-forge/maker-zip",
-                    "platforms": [
-                        "darwin"
-                    ]
-                },
-                {
                     "config": {},
                     "name": "@electron-forge/maker-deb"
                 },
@@ -73,5 +67,5 @@
         "make": "electron-forge make",
         "start": "electron-forge start"
     },
-    "version": "0.5"
+    "version": "0.6"
 }
