@@ -13,12 +13,19 @@
                     "name": "@electron-forge/maker-squirrel"
                 },
                 {
-                    "config": {},
+                    "config": {
+                        "options": {
+                            "maintainer": "Khushraj Rathod",
+                            "description": "An app that lets you automatically backup to Telegram Saved Messages",
+                            "homepage": "https://khushrajrathod.github.io/TeleDrive",
+                            "genericName": "Uploader",
+                            "name": "teledrive",
+                            "productName": "TeleDrive",
+                            "version": "0.6",
+                            "size": "200"
+                        }
+                    },
                     "name": "@electron-forge/maker-deb"
-                },
-                {
-                    "config": {},
-                    "name": "@electron-forge/maker-rpm"
                 },
                 {
                     "config": {},
@@ -39,9 +46,9 @@
         "chokidar": "latest",
         "electron-squirrel-startup": "latest",
         "electron-store": "latest",
-        "ncp": "^2.0.0"
+        "ncp": "latest"
     },
-    "description": "Uses TDlib and Airgram to create a Google Backup and Sync style uploader.",
+    "description": "An app that lets you automatically backup to Telegram Saved Messages",
     "devDependencies": {
         "@electron-forge/cli": "latest",
         "@electron-forge/maker-deb": "latest",
