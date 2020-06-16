@@ -1,6 +1,6 @@
 # TeleDrive 
 
-Uses TDlib and Airgram to create a Google Backup and Sync style uploader.
+An app that lets you automatically backup to Telegram Saved Messages
 
 ## Installation
 1. Clone repository:
