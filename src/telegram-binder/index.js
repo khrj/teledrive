@@ -50,22 +50,71 @@ module.exports.authenticate = async (client, mainWindow) => {
 
     client.on('updateAuthorizationState', async (ctx, next) => {
         if (ctx.update.authorizationState._ === "authorizationStateWaitPhoneNumber") {
-            await client.api.setAuthenticationPhoneNumber({
-                phoneNumber: await get('phoneNumber', false),
-                settings: {
-                    allowFlashCall: false,
-                    isCurrentPhoneNumber: false,
-                    allowSmsRetrieverApi: false
+            let attempt = async isRetry => {
+                 return await client.api.setAuthenticationPhoneNumber({
+                    phoneNumber: await get('phoneNumber', isRetry),
+                    settings: {
+                        allowFlashCall: false,
+                        isCurrentPhoneNumber: false,
+                        allowSmsRetrieverApi: false
+                    }
+                })
+            }
+
+            let correct = false
+
+            let response = await attempt(false)
+            if (response.response._ === "ok") {
+                correct = true
+            }
+
+            while (!correct) {
+                console.log("[AUTH] FAIL: phoneNumber")
+                let response = await attempt(true)
+                if (response.response._ === "ok") {
+                    correct = true
                 }
-            })
+            }
         } else if (ctx.update.authorizationState._ === "authorizationStateWaitCode") {
-            await client.api.checkAuthenticationCode({
-                code: await get('authCode', false),
-            })
+            let attempt = async isRetry => {
+                return await client.api.checkAuthenticationCode({
+                    code: await get('authCode', isRetry),
+                })
+            }
+
+            let correct = false
+
+            let response = await attempt(false)
+            if (response.response._ === "ok") {
+                correct = true
+            }
+
+            while (!correct) {
+                let response = await attempt(true)
+                if (response.response._ === "ok") {
+                    correct = true
+                }
+            }
         } else if (ctx.update.authorizationState._ === "authorizationStateWaitPassword") {
-            await client.api.checkAuthenticationPassword({
-                password: await get('password', false),
-            })
+            let attempt = async isRetry => {
+                return await client.api.checkAuthenticationPassword({
+                    password: await get('password', isRetry),
+                })
+            }
+
+            let correct = false
+
+            let response = await attempt(false)
+            if (response.response._ === "ok") {
+                correct = true
+            }
+
+            while (!correct) {
+                let response = await attempt(true)
+                if (response.response._ === "ok") {
+                    correct = true
+                }
+            }
         }
         return next()
     })
@@ -80,9 +129,10 @@ module.exports.authenticate = async (client, mainWindow) => {
         (await mainWindow).webContents.send('auth', {_: what, isRetry: isRetry})
 
         return new Promise(resolve => {
-            ipcMain.on(what, (event, message) => {
+            ipcMain.on(what, function listen (event, message) {
                 console.log("[AUTH] Received: " + what)
                 resolve(message)
+                ipcMain.removeListener(what, listen)
             })
         })
     }

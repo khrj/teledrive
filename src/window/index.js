@@ -29,7 +29,16 @@ window.addEventListener('DOMContentLoaded', () => {
         button.style.display = ''
         input.style.display = ''
         input.type = ''
+        input.classList.remove('shake-horizontal')
+        input.offsetHeight // Triggers Reflow
+        input.style.border = "1px solid #c4c4c4"
         title.innerHTML = 'Sign in to TeleDrive'
+    }
+
+    let retriedOnce = {
+        phoneNumber: false,
+        code: false,
+        password: false
     }
 
     ipcRenderer.on('auth', async (event, message) => {
@@ -65,21 +74,80 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         if (message._ === 'phoneNumber') {
-            ensureVisible()
-            description.innerHTML = 'Please enter your phone number<br>in international format.'
-            input.placeholder = 'Phone Number'
-            ipcRenderer.send('phoneNumber', await getInput())
+            if (!message.isRetry) {
+                ensureVisible()
+                description.innerHTML = 'Please enter your phone number<br>in international format.'
+                input.placeholder = 'Phone Number'
+                ipcRenderer.send('phoneNumber', await getInput())
+            } else {
+                if (!retriedOnce.phoneNumber) {
+                    ensureVisible()
+                    retriedOnce.phoneNumber = true
+                    description.innerHTML = 'Please enter your phone number<br>in international format.'
+                    input.classList.add("shake-horizontal")
+                    input.style.border = "2px solid #d93025"
+                    ipcRenderer.send('phoneNumber', await getInput())
+                } else {
+                    ensureVisible()
+                    description.innerHTML = 'Please enter your phone number<br>in international format.'
+                    input.classList.remove('shake-horizontal')
+                    input.offsetHeight // Triggers Reflow
+                    input.classList.add("shake-horizontal")
+                    input.style.border = "2px solid #d93025"
+                    ipcRenderer.send('phoneNumber', await getInput())
+                }
+            }
         } else if (message._ === 'authCode') {
-            ensureVisible()
-            description.innerHTML = 'Please enter OTP'
-            input.placeholder = 'One time password'
-            ipcRenderer.send('authCode', await getInput())
+            if (!message.isRetry) {
+                ensureVisible()
+                description.innerHTML = 'Please enter OTP'
+                input.placeholder = 'One time password'
+                ipcRenderer.send('authCode', await getInput())
+            } else {
+                if (!retriedOnce.code) {
+                    ensureVisible()
+                    retriedOnce.code = true
+                    description.innerHTML = 'Please enter OTP'
+                    input.classList.add("shake-horizontal")
+                    input.style.border = "2px solid #d93025"
+                    ipcRenderer.send('authCode', await getInput())
+                } else {
+                    ensureVisible()
+                    description.innerHTML = 'Please enter OTP'
+                    input.classList.remove('shake-horizontal')
+                    input.offsetHeight // Triggers Reflow
+                    input.classList.add("shake-horizontal")
+                    input.style.border = "2px solid #d93025"
+                    ipcRenderer.send('authCode', await getInput())
+                }
+            }
         } else if (message._ === 'password') {
-            ensureVisible()
-            description.innerHTML = 'Please enter your 2FA Password'
-            input.placeholder = '2 Factor Auth Password'
-            input.type = 'password'
-            ipcRenderer.send('password', await getInput())
+            if (!message.isRetry) {
+                ensureVisible()
+                description.innerHTML = 'Please enter your 2FA Password'
+                input.placeholder = '2 Factor Auth Password'
+                input.type = 'password'
+                ipcRenderer.send('password', await getInput())
+            } else {
+                if (!retriedOnce.password) {
+                    ensureVisible()
+                    retriedOnce.password = true
+                    description.innerHTML = 'Please enter your 2FA Password'
+                    input.classList.add("shake-horizontal")
+                    input.style.border = "2px solid #d93025"
+                    input.type = 'password'
+                    ipcRenderer.send('password', await getInput())
+                } else {
+                    ensureVisible()
+                    description.innerHTML = 'Please enter your 2FA Password'
+                    input.classList.remove('shake-horizontal')
+                    input.offsetHeight // Triggers Reflow
+                    input.classList.add("shake-horizontal")
+                    input.style.border = "2px solid #d93025"
+                    input.type = 'password'
+                    ipcRenderer.send('password', await getInput())
+                }
+            }
         }
     })
 
@@ -101,7 +169,7 @@ window.addEventListener('DOMContentLoaded', () => {
         description.style.display = ''
         button.innerHTML = 'Open'
 
-        button.addEventListener('click', function f () {
+        button.addEventListener('click', function f() {
             ipcRenderer.send('openFileDialog')
             button.removeEventListener('click', f)
         })
@@ -116,14 +184,14 @@ window.addEventListener('DOMContentLoaded', () => {
         description.innerHTML = 'Currently syncing <br>' + path
         button.innerHTML = 'CHANGE'
 
-        button.addEventListener('click', function f () {
+        button.addEventListener('click', function f() {
             ipcRenderer.send('changeTeleDir')
         })
 
         syncButton.style.display = ''
         queueButton.style.display = ''
 
-        syncButton.addEventListener('click', function syncAll () {
+        syncButton.addEventListener('click', function syncAll() {
             syncButton.removeEventListener("click", syncAll)
             syncButton.innerHTML = 'WAITING IN QUEUE'
             ipcRenderer.send('syncAll')
@@ -232,7 +300,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    ipcRenderer.on('movingFiles',  _ => {
+    ipcRenderer.on('movingFiles', _ => {
         let loader = document.createElement("div")
         loader.style.display = "flex"
         loader.style.alignItems = "center"
