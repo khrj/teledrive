@@ -21,7 +21,7 @@
                             "genericName": "Uploader",
                             "name": "teledrive",
                             "productName": "TeleDrive",
-                            "version": "0.6",
+                            "version": "0.6.0",
                             "size": "200"
                         }
                     },
@@ -72,5 +72,5 @@
         "make": "electron-forge make",
         "start": "electron-forge start"
     },
-    "version": "0.6"
+    "version": "0.6.0"
 }
