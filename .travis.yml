@@ -27,6 +27,11 @@ os:
 
 script:
   - yarn make
+
+addons:
+  apt:
+    packages:
+      - fakeroot
   
 after_success:
   - ls $TRAVIS_BUILD_DIR/out/
