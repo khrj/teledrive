@@ -19,7 +19,6 @@
                             "description": "An app that lets you automatically backup to Telegram Saved Messages",
                             "homepage": "https://khushrajrathod.github.io/TeleDrive",
                             "genericName": "Uploader",
-                            "name": "teledrive",
                             "productName": "TeleDrive",
                             "version": "0.6.0",
                             "size": "200"
