@@ -21,7 +21,8 @@
                             "genericName": "Uploader",
                             "productName": "TeleDrive",
                             "version": "0.6.0",
-                            "size": "200"
+                            "size": "200",
+                            "bin": "TeleDrive"
                         }
                     },
                     "name": "@electron-forge/maker-deb"
