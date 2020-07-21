@@ -3,43 +3,12 @@
         "email": "khushrajrathod@gmail.com",
         "name": "Khushraj Rathod"
     },
-    "config": {
-        "forge": {
-            "makers": [
-                {
-                    "config": {
-                        "name": "teledrive"
-                    },
-                    "name": "@electron-forge/maker-squirrel"
-                },
-                {
-                    "config": {
-                        "options": {
-                            "maintainer": "Khushraj Rathod",
-                            "description": "An app that lets you automatically backup to Telegram Saved Messages",
-                            "homepage": "https://khushrajrathod.github.io/TeleDrive",
-                            "genericName": "Uploader",
-                            "productName": "TeleDrive",
-                            "version": "0.6.0",
-                            "size": "200",
-                            "bin": "TeleDrive"
-                        }
-                    },
-                    "name": "@electron-forge/maker-deb"
-                },
-                {
-                    "config": {},
-                    "name": "@electron-forge/maker-dmg"
-                }
-            ],
-            "packagerConfig": {
-                "ignore": [
-                    "yarn.lock",
-                    ".gitignore",
-                    "README.md"
-                ]
-            }
-        }
+    "build": {
+        "appId": "teledrive",
+        "mac": {
+            "category": "uploader"
+        },
+        "asarUnpack": "tdlib/libtdjson*"
     },
     "dependencies": {
         "airgram": "latest",
@@ -50,11 +19,8 @@
     },
     "description": "An app that lets you automatically backup to Telegram Saved Messages",
     "devDependencies": {
-        "@electron-forge/cli": "latest",
-        "@electron-forge/maker-deb": "latest",
-        "@electron-forge/maker-dmg": "latest",
-        "@electron-forge/maker-squirrel": "latest",
-        "electron": "latest"
+        "electron": "latest",
+        "electron-builder": "^22.7.0"
     },
     "homepage": "https://khushrajrathod.github.io/TeleDrive",
     "keywords": [
@@ -69,8 +35,9 @@
     "productName": "TeleDrive",
     "repository": "https://github.com/KhushrajRathod/TeleDrive",
     "scripts": {
-        "make": "electron-forge make",
-        "start": "electron-forge start"
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder",
+        "start": "electron ."
     },
     "version": "0.6.0"
 }
