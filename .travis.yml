@@ -39,7 +39,7 @@ after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export UPLOADTOOL_SUFFIX="macOS" && bash upload.sh $TRAVIS_BUILD_DIR/dist/TeleDrive-0.6.0.dmg; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export UPLOADTOOL_SUFFIX="linux" && bash upload.sh $TRAVIS_BUILD_DIR/dist/TeleDrive-0.6.0.AppImage $TRAVIS_BUILD_DIR/dist/teledrive_0.6.0_amd64.snap; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export UPLOADTOOL_SUFFIX="windows" && bash upload.sh $TRAVIS_BUILD_DIR/out/make/TeleDrive-0.6.exe; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export UPLOADTOOL_SUFFIX="windows" && bash upload.sh $TRAVIS_BUILD_DIR/out/dist/TeleDrive\ Setup\ 0.6.0.exe; fi
 
 branches:
   except:
