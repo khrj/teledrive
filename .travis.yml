@@ -19,11 +19,15 @@ language: node_js
 
 node_js:
   - node
-  
+
 os:
   - osx
   - linux
   - windows
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export YARN_GPG="no"; fi
+
 
 script:
   - yarn dist
@@ -32,7 +36,7 @@ addons:
   apt:
     packages:
       - fakeroot
-  
+
 after_success:
   - ls $TRAVIS_BUILD_DIR/out/
   - ls $TRAVIS_BUILD_DIR/out/make/
