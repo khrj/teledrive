@@ -8,11 +8,20 @@
         "mac": {
             "category": "uploader"
         },
-        "asarUnpack": "tdlib/libtdjson*"
+        "extraResources": [
+            {
+                "from": "tdlib/${os}",
+                "to": "bin",
+                "filter": [
+                    "**/*"
+                ]
+            }
+        ]
     },
     "dependencies": {
         "airgram": "latest",
         "chokidar": "latest",
+        "electron-builder-squirrel-windows": "^22.8.0",
         "electron-squirrel-startup": "latest",
         "electron-store": "latest",
         "ncp": "latest"
