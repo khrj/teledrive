@@ -21,6 +21,8 @@ const createWindow = async () => {
             }
         })
 
+        window.removeMenu()
+
         await window.loadFile(path.join(__dirname, 'window', 'index.html'));
         // window.webContents.openDevTools();
         window.webContents.on('new-window', function (event, url) {
