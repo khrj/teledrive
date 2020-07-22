@@ -149,7 +149,7 @@ module.exports.create = (appStorage, appPath) => {
     return new Airgram({
         apiId: '1013617',
         apiHash: 'f5837e894e244b9b5ca1b4ad7c48fddb',
-        command: join(appPath, 'tdlib', 'libtdjson').replace('app.asar', 'app.asar.unpacked'),
+        command: join(appPath, 'libtdjson').replace('app.asar', 'bin'),
         logVerbosityLevel: 2,
         databaseDirectory: join(appStorage, 'db'),
         filesDirectory: join(appStorage, 'files'),
