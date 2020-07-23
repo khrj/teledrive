@@ -45,7 +45,12 @@ const createWindow = async () => {
 };
 
 app.on('ready', async () => {
-    const client = create(app.getPath('userData'), app.getAppPath())
+    const osMap = {
+        "Linux": "linux",
+        "Windows_NT": "win",
+        "Darwin": "mac"
+    }
+    const client = create(app.getPath('userData'), app.getAppPath(), osMap[require('os').type()])
     // noinspection ES6MissingAwait
     createWindow()
     authenticate(client, mainWindow)
