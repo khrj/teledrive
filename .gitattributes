@@ -2,3 +2,6 @@
 *.so binary
 *.dll binary
 *.dylib binary
+*.png binary
+*.icns binary
+*.svg binary
