@@ -1,0 +1,14 @@
+
+Hope you enjoy your new logo, here are the people that
+made your beautiful logo happen :)
+font name: manuale-semibold
+font link: https://fonts.google.com/specimen/Manuale
+font author: Omnibus Type
+font author site: http://www.omnibus-type.com/
+
+
+icon designer: Dan Hetteix
+icon designer link: /DHETTEIX
+        
+{"bg":"transparent","icon-gradient-0":"#01648B","icon-gradient-1":"#5BD0A4","font":"#000000","slogan":"#141414"}
+      
