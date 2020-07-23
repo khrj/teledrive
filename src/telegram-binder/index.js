@@ -141,15 +141,16 @@ module.exports.authenticate = async (client, mainWindow) => {
 /**
  * @param {string} appStorage
  * @param {string} appPath
+ * @param {string} OS
  * */
-module.exports.create = (appStorage, appPath) => {
+module.exports.create = (appStorage, appPath, OS) => {
     console.log("[SETUP] App storage:")
     console.log(appStorage)
     // noinspection JSCheckFunctionSignatures
     return new Airgram({
         apiId: '1013617',
         apiHash: 'f5837e894e244b9b5ca1b4ad7c48fddb',
-        command: join(appPath, 'libtdjson').replace('app.asar', 'bin'),
+        command: join(appPath, 'tdlib', OS, 'libtdjson').replace('app.asar', ''),
         logVerbosityLevel: 2,
         databaseDirectory: join(appStorage, 'db'),
         filesDirectory: join(appStorage, 'files'),

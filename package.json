@@ -11,7 +11,7 @@
         "extraResources": [
             {
                 "from": "tdlib/${os}",
-                "to": "bin",
+                "to": "tdlib/${os}",
                 "filter": [
                     "**/*"
                 ]
