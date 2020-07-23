@@ -8,7 +8,7 @@ const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
 /**
  * @return {Promise<string>}
  * */
-const getTeleDir = () => {
+const getTeleDir = mainWindow => {
     return new Promise(async resolve => {
         const fsPromise = require('fs').promises
         let stored = store.get('teleDir')
@@ -33,6 +33,8 @@ const getTeleDir = () => {
                     } finally {
                         resolve(teleDir)
                     }
+                } else {
+                    mainWindow.webContents.send('dialogCancelled')
                 }
             })
         }
@@ -203,7 +205,7 @@ module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion)
         /**
          * @type {string}
          */
-        let teleDir = await getTeleDir()
+        let teleDir = await getTeleDir(await mainWindow)
         ipcMain.on('changeTeleDir', async () => {
             const fsPromise = require('fs').promises
             let oldDir = store.get('teleDir')
