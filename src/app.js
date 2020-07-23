@@ -27,9 +27,10 @@ const createWindow = async () => {
         })
 
         window.on('close', (event) => {
-            if (app.quitting) {
+            if (app.quitting || process.platform !== 'darwin') { 
                 window = null
-            } else {
+                app.quit()
+            } else { // Only for darwin //TODO
                 event.preventDefault()
                 window.hide()
             }
@@ -61,10 +62,5 @@ app.on('ready', async () => {
     })
 })
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
+app.on('window-all-closed', _ => {}) // Prevent default
 app.on('before-quit', () => app.quitting = true)
