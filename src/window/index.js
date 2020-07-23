@@ -178,6 +178,14 @@ window.addEventListener('DOMContentLoaded', () => {
         input.style.display = 'none'
     })
 
+    ipcRenderer.on('dialogCancelled', () => {
+        button.addEventListener('click', function f() {
+            ipcRenderer.send('openFileDialog')
+            button.removeEventListener('click', f)
+        })
+    })
+
+
     ipcRenderer.on('selectedDir', (event, path) => {
         console.log('selectedDir', path)
         title.innerHTML = 'Setup Successfully'
