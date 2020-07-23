@@ -21,8 +21,6 @@
     "dependencies": {
         "airgram": "latest",
         "chokidar": "latest",
-        "electron-builder-squirrel-windows": "^22.8.0",
-        "electron-squirrel-startup": "latest",
         "electron-store": "latest",
         "ncp": "latest"
     },
