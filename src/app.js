@@ -6,10 +6,10 @@ let mainWindow
 const createWindow = async () => {
     mainWindow = new Promise(async resolve => {
         let window = new BrowserWindow({
-            width: 425,
-            height: 750,
+            width: 400,
+            height: 650,
             minWidth: 400,
-            minHeight: 700,
+            minHeight: 600,
             titleBarStyle: 'hiddenInset',
             webPreferences: {
                 nodeIntegration: true
