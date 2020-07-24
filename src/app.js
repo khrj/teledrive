@@ -27,7 +27,7 @@ const createWindow = async () => {
         })
 
         window.on('close', (event) => {
-            if (app.quitting || process.platform !== 'darwin') { 
+            if (app.quitting || process.platform !== 'darwin') {
                 window = null
                 app.quit()
             } else { // Only for darwin //TODO
@@ -57,7 +57,7 @@ app.on('ready', async () => {
     })
 
     ipcMain.on("discredit", () => {
-        dialog.showMessageBoxSync({type: "error", title: "Oh no you don't", message: "Don't you discredit me", detail: "This incident will be reported"})
+        dialog.showMessageBoxSync({type: "error", title: "Oh no you don't", message: "E-NO-CREDIT", detail: "This incident will be reported"})
         process.exit(1)
     })
 })

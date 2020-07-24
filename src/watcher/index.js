@@ -2,7 +2,7 @@ const chokidar = require('chokidar')
 const {createHash} = require('crypto');
 const fsPromise = require('fs').promises
 const {join, parse} = require('path')
-const {ipcMain} = require('electron')
+const {ipcMain, dialog} = require('electron')
 
 // [{_: ChangeType, path: FilePath}]
 const queue = []
@@ -10,7 +10,7 @@ let lock = false
 
 const downloadRelative = (relativePath, client, teleDir, myID) => {
     return new Promise(async resolve => {
-        console.log("NOW DOWNLOADING " + relativePath)
+        console.log("[SYNC] NOW DOWNLOADING " + relativePath)
         // Split path into useful chunks
         let path = parse(join(teleDir, relativePath))
 
@@ -22,26 +22,50 @@ const downloadRelative = (relativePath, client, teleDir, myID) => {
             limit: 100,
         })
 
-        await client.api.downloadFile({
-            fileId: searchResults.response.messages[0].content.document.document.id,
-            priority: 32
-        })
+        let file
+
+        // Infer file type
+        if (searchResults.response.messages[0].content.document) {
+            console.log("[SYNC] File type: Document")
+            file = searchResults.response.messages[0].content.document.document
+        } else if (searchResults.response.messages[0].content.audio) {
+            console.log("[SYNC] File type: Audio")
+            file = searchResults.response.messages[0].content.audio.audio
+        } else if (searchResults.response.messages[0].content.photo) {
+            console.log("[SYNC] File type: Photo")
+            file = searchResults.response.messages[0].content.photo.sizes[0].photo
+        } else if (searchResults.response.messages[0].content.video) {
+            console.log("[SYNC] File type: Video")
+            file = searchResults.response.messages[0].content.video.video
+        } else {
+            dialog.showMessageBoxSync({type: "error", title: "Invalid file type", message: "Some files in your saved messages are causing problems!", detail: "This can be fixed. Please contact khushraj.rathod@gmail.com and provide the type of file you stored in Saved Messages"})
+            process.exit(1)
+        }
+
+        const moveToSyncDir = async (file) => {
+            await fsPromise.copyFile(file.local.path, join(teleDir, relativePath))
+            await client.api.deleteFile({fileId: file.id})
+        }
+
+        let res = await client.api.downloadFile({fileId: file.id, priority: 32})
+        if (res.response.local.isDownloadingCompleted) {
+            await moveToSyncDir(res.response)
+            return resolve()
+        }
 
         client.on('updateFile', async (ctx, next) => {
             if (ctx.update.file.local.isDownloadingCompleted &&
-                ctx.update.file.remote.id === searchResults.response.messages[0].content.document.document.remote.id) {
-                console.log("MOVING FILE:")
+                ctx.update.file.remote.id === file.remote.id) {
+                console.log("[SYNC] MOVING FILE:")
                 console.log(ctx.update.file.local)
 
                 try {
-                    await fsPromise.copyFile(ctx.update.file.local.path, join(teleDir, relativePath))
-                    console.log('Successfully moved')
-                    await client.api.deleteFile({fileId: ctx.update.file.id})
+                    await moveToSyncDir(ctx.update.file)
                     return resolve()
                 } catch (e) {
                     // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
                     // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
-                    console.log("Not an error, suppressing ahahahahahahaha")
+                    console.log("[SYNC] Not an error, suppressing ahahahahahahaha")
                 }
             }
             return next()
