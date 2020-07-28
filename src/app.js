@@ -60,6 +60,12 @@ app.on('ready', async () => {
     tray.setToolTip('TeleDrive')
     tray.setContextMenu(contextMenu)
 
+    if (process.platform !== "darwin") {
+        tray.on('click', async _ => {
+            (await mainWindow).show()
+        })
+    }
+
     const osMap = {
         "Linux": "linux",
         "Windows_NT": "win",
