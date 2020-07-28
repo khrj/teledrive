@@ -43,7 +43,14 @@ const createWindow = async () => {
 let tray
 let client
 app.on('ready', async () => {
-    tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.png'))
+    if (process.platform === 'darwin') {
+        tray = new Tray(path.join(app.getAppPath(), 'icon', 'trayTemplate.png'))
+    } else if (process.platform === 'win32') {
+        tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.ico'))
+    } else {
+        tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.png'))
+    }
+    
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Show', click: async _ => {(await mainWindow).show()}},
         { label: 'Quit', click: app.quit }
@@ -52,7 +59,7 @@ app.on('ready', async () => {
     contextMenu.items[1].checked = false
     tray.setToolTip('TeleDrive')
     tray.setContextMenu(contextMenu)
-    
+
     const osMap = {
         "Linux": "linux",
         "Windows_NT": "win",
