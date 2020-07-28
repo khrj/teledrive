@@ -1,6 +1,6 @@
 const {app, BrowserWindow, shell, ipcMain, dialog, Menu, Tray} = require('electron');
 const path = require('path');
-const {authenticate, create, updateInfo} = require(path.join(__dirname, 'telegram-binder', 'index.js'))
+const {authenticate, create, updateInfo, cleanQuit} = require(path.join(__dirname, 'telegram-binder', 'index.js'))
 
 let mainWindow
 const createWindow = async () => {
@@ -41,6 +41,7 @@ const createWindow = async () => {
 };
 
 let tray
+let client
 app.on('ready', async () => {
     tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.png'))
     const contextMenu = Menu.buildFromTemplate([
@@ -57,8 +58,8 @@ app.on('ready', async () => {
         "Windows_NT": "win",
         "Darwin": "mac"
     }
-    const client = create(app.getPath('userData'), app.getAppPath(), osMap[require('os').type()])
-    // noinspection ES6MissingAwait
+    client = create(app.getPath('userData'), app.getAppPath(), osMap[require('os').type()])
+// noinspection ES6MissingAwait
     createWindow()
     authenticate(client, mainWindow)
     updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())
@@ -80,4 +81,13 @@ app.on('ready', async () => {
 
 app.on('window-all-closed', _ => {
 }) // Prevent default
-app.on('before-quit', () => app.quitting = true)
+
+app.on('before-quit', async _ => {
+    // We need to finish the queue, flush the tdlib ram, and make the window close instead of hide
+    app.quitting = true
+    ;(await mainWindow).show()
+    ;(await mainWindow).webContents.send('quit')
+    await cleanQuit()
+    await client.api.close()
+    console.log("[AIRGRAM CLEAN]")
+})
