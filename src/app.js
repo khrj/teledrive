@@ -27,10 +27,10 @@ const createWindow = async () => {
         })
 
         window.on('close', (event) => {
-            if (app.quitting || process.platform !== 'darwin') {
+            if (app.quitting) {
                 window = null
                 app.quit()
-            } else { // Only for darwin //TODO
+            } else {
                 event.preventDefault()
                 window.hide()
             }
@@ -50,7 +50,7 @@ app.on('ready', async () => {
     } else {
         tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.png'))
     }
-    
+
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Show', click: async _ => {(await mainWindow).show()}},
         { label: 'Quit', click: app.quit }
