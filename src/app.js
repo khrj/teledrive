@@ -1,4 +1,4 @@
-const {app, BrowserWindow, shell, ipcMain, dialog} = require('electron');
+const {app, BrowserWindow, shell, ipcMain, dialog, Menu, Tray} = require('electron');
 const path = require('path');
 const {authenticate, create, updateInfo} = require(path.join(__dirname, 'telegram-binder', 'index.js'))
 
@@ -40,7 +40,18 @@ const createWindow = async () => {
     })
 };
 
+let tray
 app.on('ready', async () => {
+    tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.png'))
+    const contextMenu = Menu.buildFromTemplate([
+        {label: 'Show'},
+        {label: 'Quit'}
+    ])
+
+    contextMenu.items[1].checked = false
+    tray.setToolTip('TeleDrive')
+    tray.setContextMenu(contextMenu)
+
     const osMap = {
         "Linux": "linux",
         "Windows_NT": "win",
@@ -57,10 +68,16 @@ app.on('ready', async () => {
     })
 
     ipcMain.on("discredit", () => {
-        dialog.showMessageBoxSync({type: "error", title: "Oh no you don't", message: "E-NO-CREDIT", detail: "This incident will be reported"})
+        dialog.showMessageBoxSync({
+            type: "error",
+            title: "Oh no you don't",
+            message: "E-NO-CREDIT",
+            detail: "This incident will be reported"
+        })
         process.exit(1)
     })
 })
 
-app.on('window-all-closed', _ => {}) // Prevent default
+app.on('window-all-closed', _ => {
+}) // Prevent default
 app.on('before-quit', () => app.quitting = true)
