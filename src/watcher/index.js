@@ -406,3 +406,14 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
         }
     })
 }
+
+module.exports.breakQueue = async _ => {
+    queue.length = 1
+    const awaitLock = _ => {
+        if (lock) {
+            window.setTimeout(awaitLock, 100) /* this checks the flag every 100 milliseconds*/
+        }
+        console.log("[QUEUE CLEAN]")
+    }
+    awaitLock()
+}

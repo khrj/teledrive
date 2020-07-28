@@ -344,4 +344,13 @@ window.addEventListener('DOMContentLoaded', () => {
             timerElement.innerHTML = `<h1>${count.toString()}</h1>`
         }, 1000)
     })
+
+    ipcRenderer.on('quit', _ => {
+        // noinspection JSUnresolvedFunction
+        swal({
+            title: "Cleaning up...",
+            icon: "info",
+            closeOnClickOutside: false
+        })
+    })
 })

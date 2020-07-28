@@ -3,7 +3,7 @@ const {Airgram, toObject} = require('airgram')
 const {join} = require('path')
 const Store = require('electron-store')
 const store = new Store()
-const {addWatches} = require(join(__dirname, '..', 'watcher', 'index.js'))
+const {addWatches, breakQueue} = require(join(__dirname, '..', 'watcher', 'index.js'))
 
 /**
  * @return {Promise<string>}
@@ -247,4 +247,8 @@ module.exports.updateInfo = async (client, mainWindow, appFilesPath, appVersion)
             return next()
         })
     } else await update()
+}
+
+module.exports.cleanQuit = async _ => {
+    await breakQueue()
 }
