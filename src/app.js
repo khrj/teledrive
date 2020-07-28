@@ -44,14 +44,14 @@ let tray
 app.on('ready', async () => {
     tray = new Tray(path.join(app.getAppPath(), 'icon', 'tray.png'))
     const contextMenu = Menu.buildFromTemplate([
-        {label: 'Show'},
-        {label: 'Quit'}
+        { label: 'Show', click: async _ => {(await mainWindow).show()}},
+        { label: 'Quit', click: app.quit }
     ])
 
     contextMenu.items[1].checked = false
     tray.setToolTip('TeleDrive')
     tray.setContextMenu(contextMenu)
-
+    
     const osMap = {
         "Linux": "linux",
         "Windows_NT": "win",
