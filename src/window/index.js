@@ -273,7 +273,7 @@ window.addEventListener('DOMContentLoaded', () => {
             queue.shift()
 
             if (queue.length === 0) {
-                queueList.style.lineHeight = "490px"
+                queueList.style.lineHeight = "440px"
                 queueList.innerHTML = "TeleDrive is Idle"
             } else {
                 queueList.removeChild(thisAction)
