@@ -30,7 +30,8 @@
         "airgram": "latest",
         "chokidar": "latest",
         "electron-store": "latest",
-        "ncp": "latest"
+        "ncp": "latest",
+        "electron-updater": "^4.3.4"
     },
     "description": "An app that lets you automatically backup to Telegram Saved Messages",
     "devDependencies": {
@@ -54,5 +55,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.7.1"
+    "version": "0.8.0"
 }
