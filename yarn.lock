@@ -2,11 +2,12 @@
 # yarn lockfile v1
 
 
-teledrive@0.7.1:
-  version "0.7.1"
+teledrive@0.8.0:
+  version "0.8.0"
   dependencies:
     airgram latest
     chokidar latest
     electron-store latest
+    electron-updater "^4.3.4"
     ncp latest
 
