@@ -23,7 +23,9 @@
         "files": [
             "src/",
             "LICENSE",
-            "icon/tray.png"
+            "icon/tray.png",
+            "icon/trayTemplate.png",
+            "icon/tray.ico"
         ]
     },
     "dependencies": {
