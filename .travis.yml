@@ -34,21 +34,10 @@ before_install:
 
 
 script:
+  - if [ -z "$TRAVIS_TAG" ]; then exit 0; fi
   - yarn dist
 
 addons:
   apt:
     packages:
       - fakeroot
-
-after_success:
-  - ls $TRAVIS_BUILD_DIR/
-  - ls $TRAVIS_BUILD_DIR/dist/
-  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export UPLOADTOOL_SUFFIX="macOS" && bash upload.sh $TRAVIS_BUILD_DIR/dist/*.dmg; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export UPLOADTOOL_SUFFIX="linux" && bash upload.sh $TRAVIS_BUILD_DIR/dist/*.AppImage $TRAVIS_BUILD_DIR/dist/*.snap; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export UPLOADTOOL_SUFFIX="windows" && bash upload.sh $TRAVIS_BUILD_DIR/dist/*.exe; fi
-
-branches:
-  except:
-    - /^(?i:continuous.*)$/
