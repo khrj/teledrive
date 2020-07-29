@@ -2,6 +2,10 @@ const {app, BrowserWindow, shell, ipcMain, dialog, Menu, Tray} = require('electr
 const path = require('path');
 const {authenticate, create, updateInfo, cleanQuit} = require(path.join(__dirname, 'telegram-binder', 'index.js'))
 
+// Auto updates
+const { autoUpdater } = require("electron-updater")
+autoUpdater.checkForUpdatesAndNotify()
+
 let mainWindow
 const createWindow = async () => {
     mainWindow = new Promise(async resolve => {
