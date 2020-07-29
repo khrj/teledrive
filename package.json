@@ -26,7 +26,10 @@
             "icon/tray.png",
             "icon/trayTemplate.png",
             "icon/tray.ico"
-        ]
+        ],
+        "snap": {
+            "publish": ["github"]
+        }
     },
     "dependencies": {
         "airgram": "latest",
@@ -57,5 +60,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.8.1"
+    "version": "0.8.2"
 }
