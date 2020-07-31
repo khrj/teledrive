@@ -30,11 +30,10 @@ jobs:
     - os: windows
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export YARN_GPG="no"; fi
-
+  - if [ -z "$TRAVIS_TAG" ]; then exit 0; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ] || [ "$TRAVIS_OS_NAME" = "linux" ]; then unset CSC_KEY_PASSWORD CSC_LINK; fi
 
 script:
-  - if [ -z "$TRAVIS_TAG" ]; then exit 0; fi
   - yarn dist
 
 addons:
