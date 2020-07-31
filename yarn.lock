@@ -2,8 +2,8 @@
 # yarn lockfile v1
 
 
-teledrive@0.8.4:
-  version "0.8.4"
+teledrive@0.8.5:
+  version "0.8.5"
   dependencies:
     airgram latest
     chokidar latest

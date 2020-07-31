@@ -6,7 +6,8 @@
     "build": {
         "appId": "teledrive",
         "mac": {
-            "category": "uploader"
+            "category": "uploader",
+            "hardenedRuntime": "true"
         },
         "directories": {
             "buildResources": "icon"
@@ -60,5 +61,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.8.4"
+    "version": "0.8.5"
 }
