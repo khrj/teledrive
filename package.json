@@ -9,6 +9,9 @@
             "category": "uploader",
             "hardenedRuntime": "true"
         },
+        "win": {
+            "target": "appx"
+        },
         "directories": {
             "buildResources": "icon"
         },
@@ -61,5 +64,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.8.5"
+    "version": "0.8.6"
 }
