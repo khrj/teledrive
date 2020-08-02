@@ -4,16 +4,20 @@
         "name": "Khushraj Rathod"
     },
     "build": {
-        "appId": "teledrive",
+        "appId": "me.khushrajrathod.teledrive",
+        "productName": "TeleDrive",
+        "copyright": "Copyright © 2020 Khushraj Rathod",
+        "directories": {
+            "buildResources": "icon"
+        },
         "mac": {
-            "category": "uploader",
+            "category": "public.app-category.utilities",
+            "darkModeSupport": "false",
+            "minimumSystemVersion": "10.13",
             "hardenedRuntime": "true"
         },
         "win": {
-            "target": "appx"
-        },
-        "directories": {
-            "buildResources": "icon"
+            "target": ["appx", "nsis"]
         },
         "extraResources": [
             {
@@ -32,7 +36,10 @@
             "icon/tray.ico"
         ],
         "snap": {
-            "publish": ["github"]
+            "confinement": "strict",
+            "summary": "An app that lets you automatically backup to Telegram Saved Messages",
+            "grade": "devel",
+            "stagePackages": ["libssl-dev", "libasound2", "libgconf2-4", "libnotify4", "libnspr4", "libnss3", "libpcre3", "libpulse0", "libxss1", "libxtst6"]
         }
     },
     "dependencies": {
@@ -64,5 +71,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.8.6"
+    "version": "0.8.7"
 }
