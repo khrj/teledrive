@@ -30,7 +30,6 @@ jobs:
     - os: windows
 
 before_install:
-  - if [ -z "$TRAVIS_TAG" ]; then exit 0; fi
   - if [ "$TRAVIS_OS_NAME" = "windows" ] || [ "$TRAVIS_OS_NAME" = "linux" ]; then unset CSC_KEY_PASSWORD CSC_LINK; fi
 
 script:
@@ -40,3 +39,7 @@ addons:
   apt:
     packages:
       - fakeroot
+
+branches:
+  except:
+    - master
