@@ -1,4 +1,5 @@
 const {ipcRenderer} = require('electron')
+const log = require('electron-log');
 ipcRenderer.setMaxListeners(Infinity);
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -42,7 +43,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     ipcRenderer.on('auth', async (event, message) => {
-        console.log(message)
+        log.info(message)
 
         const getInput = () => {
             const modifyUI = () => {
@@ -152,8 +153,8 @@ window.addEventListener('DOMContentLoaded', () => {
     })
 
     ipcRenderer.on('updateMyInfo', (event, myInfo) => {
-        console.log("Updating info,")
-        console.log(myInfo)
+        log.info("Updating info,")
+        log.info(myInfo)
         name.innerHTML = myInfo.name
         number.innerHTML = myInfo.number
         if (myInfo.photo) {
@@ -187,7 +188,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
     ipcRenderer.on('selectedDir', (event, path) => {
-        console.log('selectedDir', path)
+        log.info('selectedDir', path)
         title.innerHTML = 'Setup Successfully'
         description.innerHTML = 'Currently syncing <br>' + path
         button.innerHTML = 'CHANGE'
@@ -269,7 +270,7 @@ window.addEventListener('DOMContentLoaded', () => {
         thisAction.innerHTML = "Add " + queue[queue.length - 1].relativePath
         queueList.appendChild(thisAction)
         ipcRenderer.once('shiftQueue', () => {
-            console.log("SHIFTING QUEUE")
+            log.info("SHIFTING QUEUE")
             queue.shift()
 
             if (queue.length === 0) {
