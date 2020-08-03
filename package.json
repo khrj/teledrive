@@ -17,7 +17,10 @@
             "hardenedRuntime": "true"
         },
         "win": {
-            "target": ["appx", "nsis"]
+            "target": [
+                "appx",
+                "nsis"
+            ]
         },
         "extraResources": [
             {
@@ -39,15 +42,27 @@
             "confinement": "strict",
             "summary": "An app that lets you automatically backup to Telegram Saved Messages",
             "grade": "devel",
-            "stagePackages": ["libssl-dev", "libasound2", "libgconf2-4", "libnotify4", "libnspr4", "libnss3", "libpcre3", "libpulse0", "libxss1", "libxtst6"]
+            "stagePackages": [
+                "libssl-dev",
+                "libasound2",
+                "libgconf2-4",
+                "libnotify4",
+                "libnspr4",
+                "libnss3",
+                "libpcre3",
+                "libpulse0",
+                "libxss1",
+                "libxtst6"
+            ]
         }
     },
     "dependencies": {
         "airgram": "latest",
         "chokidar": "latest",
+        "electron-log": "^4.2.2",
         "electron-store": "latest",
-        "ncp": "latest",
-        "electron-updater": "^4.3.4"
+        "electron-updater": "^4.3.4",
+        "ncp": "latest"
     },
     "description": "An app that lets you automatically backup to Telegram Saved Messages",
     "devDependencies": {
@@ -71,5 +86,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.9.0"
+    "version": "0.9.1"
 }
