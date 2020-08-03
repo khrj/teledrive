@@ -3,6 +3,8 @@ const {createHash} = require('crypto');
 const fsPromise = require('fs').promises
 const {join, parse} = require('path')
 const {ipcMain, dialog} = require('electron')
+const log = require('electron-log')
+
 
 // [{_: ChangeType, path: FilePath}]
 const queue = []
