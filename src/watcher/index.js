@@ -10,7 +10,7 @@ let lock = false
 
 const downloadRelative = (relativePath, client, teleDir, myID) => {
     return new Promise(async resolve => {
-        console.log("[SYNC] NOW DOWNLOADING " + relativePath)
+        log.info("[SYNC] NOW DOWNLOADING " + relativePath)
         // Split path into useful chunks
         let path = parse(join(teleDir, relativePath))
 
@@ -26,16 +26,16 @@ const downloadRelative = (relativePath, client, teleDir, myID) => {
 
         // Infer file type
         if (searchResults.response.messages[0].content.document) {
-            console.log("[SYNC] File type: Document")
+            log.info("[SYNC] File type: Document")
             file = searchResults.response.messages[0].content.document.document
         } else if (searchResults.response.messages[0].content.audio) {
-            console.log("[SYNC] File type: Audio")
+            log.info("[SYNC] File type: Audio")
             file = searchResults.response.messages[0].content.audio.audio
         } else if (searchResults.response.messages[0].content.photo) {
-            console.log("[SYNC] File type: Photo")
+            log.info("[SYNC] File type: Photo")
             file = searchResults.response.messages[0].content.photo.sizes[0].photo
         } else if (searchResults.response.messages[0].content.video) {
-            console.log("[SYNC] File type: Video")
+            log.info("[SYNC] File type: Video")
             file = searchResults.response.messages[0].content.video.video
         } else {
             dialog.showMessageBoxSync({type: "error", title: "Invalid file type", message: "Some files in your saved messages are causing problems!", detail: "This can be fixed. Please contact khushraj.rathod@gmail.com and provide the type of file you stored in Saved Messages"})
@@ -56,8 +56,8 @@ const downloadRelative = (relativePath, client, teleDir, myID) => {
         client.on('updateFile', async (ctx, next) => {
             if (ctx.update.file.local.isDownloadingCompleted &&
                 ctx.update.file.remote.id === file.remote.id) {
-                console.log("[SYNC] MOVING FILE:")
-                console.log(ctx.update.file.local)
+                log.info("[SYNC] MOVING FILE:")
+                log.info(ctx.update.file.local)
 
                 try {
                     await moveToSyncDir(ctx.update.file)
@@ -65,7 +65,7 @@ const downloadRelative = (relativePath, client, teleDir, myID) => {
                 } catch (e) {
                     // This happens because for some reason ctx.update.file.local.isDownloadingCompleted is
                     // true even when the downloading hasn't completed... ¯\_(ツ)_/¯
-                    console.log("[SYNC] Not an error, suppressing ahahahahahahaha")
+                    log.info("[SYNC] Not an error, suppressing ahahahahahahaha")
                 }
             }
             return next()
@@ -77,15 +77,15 @@ const downloadRelative = (relativePath, client, teleDir, myID) => {
 const addFile = async (filePath, myID, client, appFilesPath, mainWindow, teleDir) => {
     return new Promise(async resolve => {
         let tag = '#TeleDrive ' + filePath.split('TeleDriveSync').pop()
-        console.log("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
-        console.log("[UPLOAD] TAG IS: " + tag)
+        log.info("[UPLOAD] ADDING/CHANGING FILE: " + filePath)
+        log.info("[UPLOAD] TAG IS: " + tag)
 
         let masterData = JSON.parse((await fsPromise.readFile(join(appFilesPath, 'TeleDriveMaster.json'))))
 
         const writeCloud = async (newJSON, filePath, changeTypeAdd) => {
             // Overwrite Master File
             await fsPromise.writeFile(join(appFilesPath, 'TeleDriveMaster.json'), JSON.stringify(newJSON))
-            console.log('Overwrote Master File');
+            log.info('Overwrote Master File');
 
             // Re-attach Master File
             await client.api.editMessageMedia({
@@ -160,30 +160,30 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow, teleDir
         let sha = createHash("sha256")
         sha.update(await fsPromise.readFile(filePath))
         let hash = sha.digest('hex')
-        console.log("[UPLOAD] HASH FOR FILE " + filePath + " IS: " + hash)
+        log.info("[UPLOAD] HASH FOR FILE " + filePath + " IS: " + hash)
 
         if (filePath.split('TeleDriveSync').pop() in masterData.files) {
             let existingFile = masterData.files[filePath.split('TeleDriveSync').pop()]
             if (existingFile.slice(-1)[0] === hash) { // Exact duplicate
-                console.log("[UPLOAD] " + filePath + " is exact duplicate of " + filePath.split('TeleDriveSync').pop() + ", skipping...")
+                log.info("[UPLOAD] " + filePath + " is exact duplicate of " + filePath.split('TeleDriveSync').pop() + ", skipping...")
                 resolve();
                 (await mainWindow).webContents.send('shiftQueue')
             } else if (existingFile.slice(0, -1).indexOf(hash) >= 0) { // CONFLICT, FILE IS OLD VERSION OF NEW CLOUD VERSION
-                console.log("[UPLOAD] [CONFLICT] Cloud has newer or unknown version of " + filePath + ", prompting...");
+                log.info("[UPLOAD] [CONFLICT] Cloud has newer or unknown version of " + filePath + ", prompting...");
                 (await mainWindow).focus();
                 (await mainWindow).webContents.send("uploadConflict", filePath.split('TeleDriveSync').pop());
                 ipcMain.once('conflictResolved', async (_, toOverwrite) => {
-                    console.log("[RESOLVED]")
+                    log.info("[RESOLVED]")
                     if (toOverwrite) {
                         masterData.files[filePath.split('TeleDriveSync').pop()].push(hash)
-                        console.log("[UPLOAD] [FORCE] NEW JSON IS:")
-                        console.log(masterData)
+                        log.info("[UPLOAD] [FORCE] NEW JSON IS:")
+                        log.info(masterData)
                         await writeCloud(masterData, filePath, false);
                         (await mainWindow).webContents.send('shiftQueue')
                         resolve()
                     } else {
                         await downloadRelative(filePath.split('TeleDriveSync').pop(), client, teleDir, myID)
-                        console.log("[SYNC] [FORCE] FILE: " + filePath);
+                        log.info("[SYNC] [FORCE] FILE: " + filePath);
                         (await mainWindow).webContents.send('shiftQueue')
                         resolve()
                     }
@@ -191,8 +191,8 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow, teleDir
             } else { // File was changed now or when TeleDrive was not running
                 masterData.files[filePath.split('TeleDriveSync').pop()].push(hash)
 
-                console.log("[UPLOAD] [CHANGE] NEW JSON IS:")
-                console.log(masterData)
+                log.info("[UPLOAD] [CHANGE] NEW JSON IS:")
+                log.info(masterData)
 
                 await writeCloud(masterData, filePath, false);
                 (await mainWindow).webContents.send('shiftQueue')
@@ -200,8 +200,8 @@ const addFile = async (filePath, myID, client, appFilesPath, mainWindow, teleDir
             }
         } else { // New File
             masterData.files[filePath.split('TeleDriveSync').pop()] = [hash]
-            console.log("[UPLOAD] [ADD] NEW JSON IS:")
-            console.log(masterData)
+            log.info("[UPLOAD] [ADD] NEW JSON IS:")
+            log.info(masterData)
             await writeCloud(masterData, filePath, true);
             (await mainWindow).webContents.send('shiftQueue')
             resolve()
@@ -233,14 +233,14 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
                     let sha = createHash("sha256")
                     sha.update(await fsPromise.readFile(join(teleDir, item)))
                     let hash = sha.digest('hex')
-                    console.log("[SYNC] Hash for local file " + join(teleDir, item) + " is: " + hash)
+                    log.info("[SYNC] Hash for local file " + join(teleDir, item) + " is: " + hash)
 
                     if (masterData.files[item].slice(0, -1).indexOf(hash) !== -1) { // If old version
-                        console.log("[SYNC] Old version of file " + item + " found locally, Overwriting...")
+                        log.info("[SYNC] Old version of file " + item + " found locally, Overwriting...")
                         await downloadRelative(item, client, teleDir, myID) // Same as non-existent
                         resolve()
                     } else if (masterData.files[item].slice(-1)[0] === hash) { // If exact duplicate
-                        console.log("[SYNC] Exact duplicate of " + item + " found locally, Skipping...")
+                        log.info("[SYNC] Exact duplicate of " + item + " found locally, Skipping...")
                         resolve() // Don't need to do anything
                     }
                 } catch (e) { // Non-existent
@@ -267,7 +267,7 @@ const syncAll = async (client, appFilesPath, mainWindow, teleDir, myID) => {
 module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersion, mainWindow) => {
     const evalQueue = () => {
         lock = true
-        console.log("[QUEUE] EVALUATING")
+        log.info("[QUEUE] EVALUATING")
         const next = () => {
             new Promise(resolve => {
                 let change = queue[0]
@@ -287,7 +287,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                     case 'error':
                         throw change.path
                     default:
-                        console.log("[FATAL] WTF")
+                        log.info("[FATAL] WTF")
                         throw change
                 }
             }).then(() => {
@@ -295,7 +295,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                     next()
                 } else {
                     lock = false
-                    console.log("[QUEUE] COMPLETED EVALUATION")
+                    log.info("[QUEUE] COMPLETED EVALUATION")
                 }
             })
         }
@@ -355,11 +355,11 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                         ctx.update.file.remote.id === results.response.messages[0].content.document.document.remote.id) {
                         try {
                             await fsPromise.copyFile(ctx.update.file.local.path, join(appFilesPath, 'TeleDriveMaster.json'))
-                            console.log('[MASTER] [INITIAL FETCH] Successfully moved')
+                            log.info('[MASTER] [INITIAL FETCH] Successfully moved')
                             await client.api.deleteFile({fileId: ctx.update.file.id})
                             resolve()
                         } catch (e) {
-                            console.log("[MASTER] [INITIAL FETCH] Airgram is stupid at times. Nothing to worry about") // This is because ctx.update.file.local.isDownloadingCompleted is true even when it hasn't completed
+                            log.info("[MASTER] [INITIAL FETCH] Airgram is stupid at times. Nothing to worry about") // This is because ctx.update.file.local.isDownloadingCompleted is true even when it hasn't completed
                         }
                     }
                     return next()
@@ -375,7 +375,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
 
     watcher
         .on('add', async path => {
-            console.log('[WATCHER] File', path, 'has been added');
+            log.info('[WATCHER] File', path, 'has been added');
             // noinspection JSUnresolvedVariable
             (await mainWindow).webContents.send("pushQueue", {_: "add", relativePath: path.split("TeleDriveSync").pop()})
             queue.push({_: "add", path: path})
@@ -386,7 +386,7 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
         .on('change', async path => {
             // noinspection JSUnresolvedVariable
             (await mainWindow).webContents.send("pushQueue", {_: "change", relativePath: path.split("TeleDriveSync").pop()})
-            console.log('[WATCHER] File', path, 'has been changed')
+            log.info('[WATCHER] File', path, 'has been changed')
             queue.push({_: "add", path: path})
             if (!lock) {
                 evalQueue()
@@ -413,7 +413,7 @@ module.exports.breakQueue = async _ => {
         if (lock) {
             window.setTimeout(awaitLock, 100) /* this checks the flag every 100 milliseconds*/
         }
-        console.log("[QUEUE CLEAN]")
+        log.info("[QUEUE CLEAN]")
     }
     awaitLock()
 }

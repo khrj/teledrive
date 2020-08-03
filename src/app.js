@@ -106,5 +106,5 @@ app.on('before-quit', async _ => {
     ;(await mainWindow).webContents.send('quit')
     await cleanQuit()
     await client.api.close()
-    console.log("[AIRGRAM CLEAN]")
+    require('electron-log').info("[AIRGRAM CLEAN]")
 })

@@ -46,7 +46,7 @@ const getTeleDir = mainWindow => {
  * @param {BrowserWindow} mainWindow
  * */
 module.exports.authenticate = async (client, mainWindow) => {
-    console.log("[AUTH] Starting...")
+    log.info("[AUTH] Starting...")
 
     await client
 
@@ -71,7 +71,7 @@ module.exports.authenticate = async (client, mainWindow) => {
             }
 
             while (!correct) {
-                console.log("[AUTH] FAIL: phoneNumber")
+                log.info("[AUTH] FAIL: phoneNumber")
                 let response = await attempt(true)
                 if (response.response._ === "ok") {
                     correct = true
@@ -127,12 +127,12 @@ module.exports.authenticate = async (client, mainWindow) => {
      * @returns {Promise<{String}>}
      */
     const get = async (what, isRetry) => {
-        console.log("[AUTH] Prompting for " + what);
+        log.info("[AUTH] Prompting for " + what);
         (await mainWindow).webContents.send('auth', {_: what, isRetry: isRetry})
 
         return new Promise(resolve => {
             ipcMain.on(what, function listen (event, message) {
-                console.log("[AUTH] Received: " + what)
+                log.info("[AUTH] Received: " + what)
                 resolve(message)
                 ipcMain.removeListener(what, listen)
             })
@@ -146,8 +146,8 @@ module.exports.authenticate = async (client, mainWindow) => {
  * @param {string} OS
  * */
 module.exports.create = (appStorage, appPath, OS) => {
-    console.log("[SETUP] App storage:")
-    console.log(appStorage)
+    log.info("[SETUP] App storage:")
+    log.info(appStorage)
     // noinspection JSCheckFunctionSignatures
     return new Airgram({
         apiId: '1013617',
