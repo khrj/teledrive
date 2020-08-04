@@ -43,7 +43,8 @@
             "summary": "An app that lets you automatically backup to Telegram Saved Messages",
             "grade": "devel",
             "stagePackages": [
-                "libssl-dev",
+                "libc++1",
+                "libssl1.0.0",
                 "libasound2",
                 "libgconf2-4",
                 "libnotify4",
@@ -59,7 +60,7 @@
     "dependencies": {
         "airgram": "latest",
         "chokidar": "latest",
-        "electron-log": "^4.2.2",
+        "electron-log": "latest",
         "electron-store": "latest",
         "electron-updater": "^4.3.4",
         "ncp": "latest"
@@ -67,7 +68,7 @@
     "description": "An app that lets you automatically backup to Telegram Saved Messages",
     "devDependencies": {
         "electron": "latest",
-        "electron-builder": "^22.7.0"
+        "electron-builder": "latest"
     },
     "homepage": "https://khushrajrathod.github.io/TeleDrive",
     "keywords": [
@@ -86,5 +87,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.9.2"
+    "version": "0.9.3"
 }
