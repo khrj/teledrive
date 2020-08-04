@@ -77,7 +77,7 @@
         "telegram client",
         "tdlib"
     ],
-    "license": "UNLICENSED",
+    "license": "GPL-3.0",
     "main": "src/app.js",
     "name": "teledrive",
     "productName": "TeleDrive",
