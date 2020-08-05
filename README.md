@@ -1,14 +1,20 @@
-**Important note: Downloads don't work - the app is functional, but the distribution is not ready yet. Work in progress.**
+<div align="center">
+<img src="icon/vector/banner.svg" alt="TeleDrive logo" width="100%">
+</div>
 
-
-![TeleDrive logo](icon/vector/banner.svg)
 > TeleDrive lets you automatically backup ANY files to Telegram Saved Messages - this means **UNLIMITED** storage, as long as each file is under 2GB
 
-
 # Downloads
+<div align="center">
 <a href="https://snapcraft.io/teledrive">
   <img alt="Get it from the Snap Store" src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg" />
-</a> (not functional yet)
+</a>
+</div>
+
+<div align="center">
+Alternative download links: <br>
+<a href="https://www.khushrajrathod.me/TeleDrive/latest/windows">Windows (NSIS)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/macOS">macOS (DMG)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/linux">Linux (AppImage)</a>
+</div>
 
 # How does it work?
 TeleDrive watches a folder for changes and automatically uploads any files contained within that folder to Telegram's saved messages. TeleDrive tags sub folders with their names, so when you restore your files using TeleDrive, you automatically get your folder structure back. For e.x if a TeleDrive's synced folder contains two sub folders, each containing one file:
