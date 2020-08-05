@@ -2,7 +2,6 @@ const {ipcRenderer} = require('electron')
 ipcRenderer.setMaxListeners(Infinity);
 
 window.addEventListener('DOMContentLoaded', () => {
-    const credit = document.getElementById("credits")
     const title = document.getElementById('title')
     const name = document.getElementById('name')
     const number = document.getElementById('number')
@@ -13,10 +12,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const profilePicture = document.getElementById('profilePicture')
     const syncButton = document.getElementById('reDownload')
     const queueButton = document.getElementById('queueButton')
-
-    if (credit.textContent !== "Made with <3 and </> by Khushraj Rathod") {
-        ipcRenderer.send("discredit")
-    }
 
     let queue = [];
     const queueList = document.createElement('div')
