@@ -4,16 +4,18 @@
 
 > TeleDrive lets you automatically backup ANY files to Telegram Saved Messages - this means **UNLIMITED** storage, as long as each file is under 2GB
 
-# Downloads
 <div align="center">
 <a href="https://snapcraft.io/teledrive">
   <img alt="Get it from the Snap Store" src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg" />
+</a>
+<a href="https://www.khushrajrathod.me/TeleDrive/latest/linux">
+  <img alt="Download as an AppImage" src="icon/vector/download-appimage.svg" />
 </a>
 </div>
 
 <div align="center">
 Alternative download links: <br>
-<a href="https://www.khushrajrathod.me/TeleDrive/latest/windows">Windows (NSIS)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/macOS">macOS (DMG)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/linux">Linux (AppImage)</a>
+<a href="https://www.khushrajrathod.me/TeleDrive/latest/windows">Windows (NSIS)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/macOS">macOS (DMG)</a>
 </div>
 
 # How does it work?
