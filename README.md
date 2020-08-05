@@ -54,7 +54,6 @@ TeleDriveSync ---- ----- Folder1 ----- MyFile1.txt
 - SHA252 based file versioning
 - Queue viewer for uploads
 - Built in conflict resolver
-  - When there's an older file on Saved Messages and you're trying to restore
   - When there's a newer file on Saved Messages but you're trying to backup
 
 # Screenshots
