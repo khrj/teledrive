@@ -10,18 +10,6 @@
         "directories": {
             "buildResources": "icon"
         },
-        "mac": {
-            "category": "public.app-category.utilities",
-            "darkModeSupport": "false",
-            "minimumSystemVersion": "10.13",
-            "hardenedRuntime": "true"
-        },
-        "win": {
-            "target": [
-                "appx",
-                "nsis"
-            ]
-        },
         "extraResources": [
             {
                 "from": "tdlib/${os}",
@@ -38,6 +26,18 @@
             "icon/trayTemplate.png",
             "icon/tray.ico"
         ],
+        "mac": {
+            "category": "public.app-category.utilities",
+            "darkModeSupport": "false",
+            "minimumSystemVersion": "10.13",
+            "hardenedRuntime": "true"
+        },
+        "win": {
+            "target": [
+                "appx",
+                "nsis"
+            ]
+        },
         "snap": {
             "confinement": "strict",
             "summary": "An app that lets you automatically backup to Telegram Saved Messages",
@@ -55,7 +55,8 @@
                 "libxss1",
                 "libxtst6"
             ]
-        }
+        },
+        "afterPack": "./scripts/linuxDepends.js"
     },
     "dependencies": {
         "airgram": "latest",
@@ -87,5 +88,5 @@
         "dist": "electron-builder",
         "start": "electron ."
     },
-    "version": "0.9.3"
+    "version": "0.9.4"
 }

@@ -16,6 +16,7 @@
 # along with TeleDrive.  If not, see <https://www.gnu.org/licenses/>.
 
 language: node_js
+dist: bionic
 
 node_js:
   - node
@@ -36,6 +37,7 @@ addons:
   apt:
     packages:
       - fakeroot
+      - libc++1
   snaps:
     - name: snapcraft
       confinement: classic
