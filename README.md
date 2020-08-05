@@ -1,6 +1,4 @@
-<div align="center">
 <img src="icon/vector/banner.svg" alt="TeleDrive logo" width="100%">
-</div>
 
 > TeleDrive lets you automatically backup ANY files to Telegram Saved Messages - this means **UNLIMITED** storage, as long as each file is under 2GB
 
@@ -17,6 +15,10 @@
 Alternative download links: <br>
 <a href="https://www.khushrajrathod.me/TeleDrive/latest/windows">Windows (NSIS)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/macOS">macOS (DMG)</a>
 </div>
+
+# Screenshots
+
+<img src="docs/images/auth/Auth-PhoneNumber.png" alt="Authentication - Phone Number" width="350px"> <img src="docs/images/auth/Auth-selectdir.png" alt="Authentication - Select Dir" width="350px"> <img src="docs/images/auth/Auth-success.png" alt="Authentication - Success" width="350px"> <img src="docs/images/conflict/conflict.png" alt="Conflict" width="350px">
 
 # How does it work?
 TeleDrive watches a folder for changes and automatically uploads any files contained within that folder to Telegram's saved messages. TeleDrive tags sub folders with their names, so when you restore your files using TeleDrive, you automatically get your folder structure back. For e.x if a TeleDrive's synced folder contains two sub folders, each containing one file:
@@ -43,7 +45,6 @@ TeleDriveSync ---- ----- Folder1 ----- MyFile1.txt
                  |
                  |
                  | ----- Folder2 ----- MyFile2.txt
-
 ```
 
 # Features
@@ -55,10 +56,6 @@ TeleDriveSync ---- ----- Folder1 ----- MyFile1.txt
 - Queue viewer for uploads
 - Built in conflict resolver
   - When there's a newer file on Saved Messages but you're trying to backup
-
-# Screenshots
-
-[Work in progress]
 
 # Running from source
 1. Clone repository:
