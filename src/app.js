@@ -84,16 +84,6 @@ app.on('ready', async () => {
     app.on('activate', async () => {
         (await mainWindow).show()
     })
-
-    ipcMain.on("discredit", () => {
-        dialog.showMessageBoxSync({
-            type: "error",
-            title: "Oh no you don't",
-            message: "E-NO-CREDIT",
-            detail: "This incident will be reported"
-        })
-        process.exit(1)
-    })
 })
 
 app.on('window-all-closed', _ => {
