@@ -44,4 +44,4 @@ addons:
 
 branches:
   except:
-    - master
+    - main
