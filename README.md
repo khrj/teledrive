@@ -12,9 +12,17 @@
 </div>
 
 <div align="center">
-Alternative download links: <br>
+Download links: <br>
 <a href="https://www.khushrajrathod.me/TeleDrive/latest/windows">Windows (NSIS)</a> --- <a href="https://www.khushrajrathod.me/TeleDrive/latest/macOS">macOS (DMG)</a>
 </div>
+
+---
+
+Alternatively, for macOS, install using [homebrew](https://brew.sh/)
+```bash
+brew cask install --no-quarantine khushrajrathod/teledrive/teledrive
+```
+> See [code signing](https://github.com/KhushrajRathod/TeleDrive/issues/10) for more info on why --no-quarantine is used
 
 # Screenshots
 
