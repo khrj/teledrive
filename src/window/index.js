@@ -239,7 +239,7 @@ window.addEventListener('DOMContentLoaded', () => {
                      <line x1='256' y1='224' x2='256' y2='448.03'
                            style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/>
                  </svg>
-                 <div>SYNC AGAIN</div>`
+                 <div>RESTORE AGAIN</div>`
 
         // Add new listener
         const syncAll = () => {
@@ -251,7 +251,7 @@ window.addEventListener('DOMContentLoaded', () => {
     })
 
     ipcRenderer.on('syncStarting', _ => {
-        syncButton.innerHTML = 'SYNCING...'
+        syncButton.innerHTML = 'RESTORING...'
     })
 
     ipcRenderer.on('pushQueue', (event, action) => {
