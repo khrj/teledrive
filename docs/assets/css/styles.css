@@ -1,0 +1,9 @@
+section.features .feature-item i {
+  background: linear-gradient(270deg, #00f260, #0575e6);
+  -webkit-background-clip: text;
+}
+
+#mainNav .navbar-brand {
+  color: #fff;
+}
+
