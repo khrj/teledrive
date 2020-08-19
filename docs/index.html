@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Muli">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
@@ -35,8 +37,20 @@
             <div class="row h-100" style="/*background: linear-gradient(270deg,#00F260,#0575E6);*/">
                 <div class="col-lg-7 my-auto">
                     <div class="mx-auto header-content">
-                        <h1 class="mb-5">TeleDrive lets you automatically backup <em>all</em>&nbsp;your files to telegram's saved messages. This means f<strong>ree, unlimited</strong> storage<br></h1><a class="btn btn-outline-warning btn-xl js-scroll-trigger" role="button"
-                            id="download" href="#">Getting release...</a></div>
+                        <h1 class="mb-5">TeleDrive lets you automatically backup <em>all</em>&nbsp;your files to telegram's saved messages. This means f<strong>ree, unlimited</strong> storage<br></h1>
+                        <div id="download" class="btn btn-outline-warning btn-xl js-scroll-trigger"
+                            style="display: grid;grid-template-columns: auto 44px;grid-template-rows: auto;width: 242.5px;height: 48.5px;padding: 0px;margin: auto;overflow: hidden;">
+                            <div id="quick-download" class="button-part" style="display: flex;justify-content: center;align-items: center;"><span>Getting release...</span></div>
+                            <div id="dropdown" class="button-part" style="display: none;justify-content: center;align-items: center;"><span><i class="material-icons">arrow_drop_down</i></span><div id="platform-list" style="flex-direction: column; color: black">
+<!--     <a href="javascript:void(0)">(Coming Soon) Windows (Microsoft Store)</a> -->
+    <a href="https://www.khushrajrathod.me/TeleDrive/latest/Windows/">Windows (exe installer)</a>
+    <a href="https://www.khushrajrathod.me/TeleDrive/latest/macOS/">macOS (dmg)</a>
+<!--     <a href="javascript:void(0)">(Coming Soon) macOS (Homebrew)</a>
+    <a href="javascript:void(0)">(Coming Soon) Linux (Snap Store)</a> -->
+    <a href="https://www.khushrajrathod.me/TeleDrive/latest/Linux/">Linux (AppImage)</a>
+</div></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-lg-5 my-auto" background-image="url('Auth-success.png')">
                     <div style="height: 100%;"><img src="assets/img/Auth-success.png" style="width: 100%;"></div>

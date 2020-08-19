@@ -10,14 +10,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
             os = 'macOS'
         } else if (windowsPlatforms.indexOf(platform) !== -1) {
             os = 'Windows'
-        } else if (!os && /Linux/.test(platform)) {
+        } else if (/Linux/.test(platform)) {
             os = 'Linux'
+        } else {
+            os = "Windows"
         }
     
         return os
     }
-    
-    document.getElementById('download').innerHTML = `Download for ${getOS()}`
-    document.getElementById('download').href = `latest/${getOS()}`
-
+    const button = document.getElementById('download')
+    button.children[0].children[0].innerHTML = `Download for ${getOS()}`
+    button.children[1].style.display = "flex"
+    document.getElementById('quick-download').setAttribute('onclick',`location.href = "latest/${getOS()}"`)
 })
