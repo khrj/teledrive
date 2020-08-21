@@ -1,4 +1,4 @@
-# Features
+# Resolving conflicts
 
 ## foo
 

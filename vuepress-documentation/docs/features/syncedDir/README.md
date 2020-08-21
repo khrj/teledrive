@@ -1,4 +1,4 @@
-# Features
+# Selecting a folder to place the synced folder in
 
 ## foo
 

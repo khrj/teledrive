@@ -1,4 +1,4 @@
-# Features
+# Restoring files
 
 ## foo
 

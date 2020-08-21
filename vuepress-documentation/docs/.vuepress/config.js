@@ -35,16 +35,25 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '',
-                        'using-vue',
                     ]
                 }
             ],
-        }
+            '/features/': [
+                {
+                    title: "Features",
+                    collapsable: false,
+                    children: [
+                        'signingIn/',
+                        'syncedDir/',
+                        'uploadingFiles/',
+                        'restoringFiles/',
+                        'conflictResolver/'
+                    ]
+                }
+            ]
+        },
+        sidebarDepth: 2
     },
-
-    /**
-     * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
-     */
     plugins: [
         '@vuepress/plugin-back-to-top',
         '@vuepress/plugin-medium-zoom',
