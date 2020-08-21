@@ -1,11 +1,21 @@
 # Selecting a folder to place the synced folder in
 
-## foo
+## Selecting a folder
 
-- Type: `string`
-- Default: `/`
+- After signing in, click 'Open'
+- A system dialog will popup
+- Select the folder which you want to place your synced folder in
+- TeleDrive will create a folder called TeleDriveSync inside this folder
 
-## bar
+![Select a folder to sync](../../images/features.syncedDir/selectDir.png)
 
-- Type: `string`
-- Default: `/`
+## Changing the folder
+
+- Click 'Change'
+- A system dialog will popup
+- Select the folder which you want to place your synced folder in
+- TeleDrive will create a folder called TeleDriveSync inside this folder
+- TeleDrive will move all your synced files and then reopen with a delay of five seconds
+- If TeleDrive doesn't automatically reopen, manually open it
+
+![Changing the synced folder](../../images/features.syncedDir/changeDir.png)
