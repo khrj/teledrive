@@ -21,7 +21,7 @@ brew cask install --no-quarantine khushrajrathod/teledrive/teledrive
 
 # Screenshots
 
-<img src="docs/images/auth/Auth-PhoneNumber.png" alt="Authentication - Phone Number" width="350px"> <img src="docs/images/auth/Auth-selectdir.png" alt="Authentication - Select Dir" width="350px"> <img src="docs/images/auth/Auth-success.png" alt="Authentication - Success" width="350px"> <img src="docs/images/conflict/conflict.png" alt="Conflict" width="350px">
+<img src="website/images/auth/Auth-PhoneNumber.png" alt="Authentication - Phone Number" width="350px"> <img src="website/images/auth/Auth-selectdir.png" alt="Authentication - Select Dir" width="350px"> <img src="website/images/auth/Auth-success.png" alt="Authentication - Success" width="350px"> <img src="website/images/conflict/conflict.png" alt="Conflict" width="350px">
 
 # How does it work?
 TeleDrive watches a folder for changes and automatically uploads any files contained within that folder to Telegram's saved messages. TeleDrive tags sub folders with their names, so when you restore your files using TeleDrive, you automatically get your folder structure back. For e.x if a TeleDrive's synced folder contains two sub folders, each containing one file:

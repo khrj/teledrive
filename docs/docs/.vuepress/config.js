@@ -31,10 +31,12 @@ module.exports = {
         sidebar: {
             '/guide/': [
                 {
-                    title: 'Guide',
+                    title: 'Installation Guide',
                     collapsable: false,
                     children: [
-                        '',
+                        'windows/',
+                        'macOS/',
+                        'linux/'
                     ]
                 }
             ],
@@ -58,6 +60,6 @@ module.exports = {
         '@vuepress/plugin-back-to-top',
         '@vuepress/plugin-medium-zoom',
     ],
-    dest: '../docs/docs/',
+    dest: '../website/docs/',
     base: '/TeleDrive/docs/'
 }

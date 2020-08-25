@@ -30,8 +30,17 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "windows" ] || [ "$TRAVIS_OS_NAME" = "linux" ]; then unset CSC_KEY_PASSWORD CSC_LINK; fi
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then echo $SNAP_TOKEN | snapcraft login --with -; fi
-  - yarn dist
+  - |
+    if [ -n "$TRAVIS_TAG" ]; then
+        if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+            echo $SNAP_TOKEN | snapcraft login --with -
+        fi
+        yarn dist
+    elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
+        cd docs
+        yarn
+        yarn build
+    fi
 
 addons:
   apt:
@@ -42,6 +51,11 @@ addons:
     - name: snapcraft
       confinement: classic
 
-branches:
-  except:
-    - main
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  local_dir: website
+  on:
+    branch: main
+    condition: $TRAVIS_OS_NAME = linux
