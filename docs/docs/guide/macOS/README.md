@@ -1,8 +1,11 @@
 # macOS
 ## DMG (recommended for most users)
 ::: danger
-macOS DMG is unsigned. Right click > Open in finder the first time to open. [Learn more](https://github.com/KhushrajRathod/TeleDrive/issues/10#issue-672883960)
+macOS DMG is unsigned. Right click > Open in Finder the first time to open. [Learn more](https://github.com/KhushrajRathod/TeleDrive/issues/10#issue-672883960)
 :::
+
+- Go to the [homepage](https://www.khushrajrathod.me/TeleDrive)
+- Select 'Download for macOS' (Or select the dropdown > macOS (DMG))
 
 ## Homebrew
 ### Prefer a video?
