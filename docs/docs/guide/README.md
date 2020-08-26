@@ -1,6 +1,6 @@
 # Installation Guide
 
-This section lists the various ways to install TeleDrive.  
+This section lists the various ways to install TeleDrive. Already done with that? [Jump to using TeleDrive](../features)  
 Select your operating system:
 
 - [Windows](./windows/)

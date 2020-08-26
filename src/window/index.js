@@ -69,6 +69,22 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         if (message._ === 'phoneNumber') {
+            // noinspection JSUnresolvedFunction
+            let choice = await swal({
+                title: "Welcome to TeleDrive",
+                text: 'New here? Checkout the documentation',
+                icon: "info",
+                buttons: {
+                    cancel: "Skip",
+                    confirm: "View documentation",
+                },
+                closeOnClickOutside: false
+            })
+
+            if (choice) {
+                await shell.openExternal('https://www.khushrajrathod.me/TeleDrive/docs/')
+            }
+
             if (!message.isRetry) {
                 ensureVisible()
                 description.innerHTML = 'Please enter your phone number<br>in international format.'

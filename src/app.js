@@ -76,7 +76,7 @@ app.on('ready', async () => {
         "Darwin": "mac"
     }
     client = create(app.getPath('userData'), app.getAppPath(), osMap[require('os').type()])
-// noinspection ES6MissingAwait
+    // noinspection ES6MissingAwait
     createWindow()
     authenticate(client, mainWindow)
     updateInfo(client, mainWindow, app.getPath('userData'), app.getVersion())

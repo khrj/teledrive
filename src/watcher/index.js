@@ -346,7 +346,8 @@ module.exports.addWatches = async (teleDir, myID, client, appFilesPath, appVersi
                     }
                 })
                 resolve()
-            } else {
+            }
+            else {
                 await client.api.downloadFile({
                     fileId: results.response.messages[0].content.document.document.id,
                     priority: 32
