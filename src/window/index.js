@@ -1,4 +1,4 @@
-const {ipcRenderer, shell} = require('electron')
+const { ipcRenderer, shell } = require('electron')
 ipcRenderer.setMaxListeners(Infinity);
 
 window.addEventListener('DOMContentLoaded', () => {

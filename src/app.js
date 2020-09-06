@@ -1,6 +1,6 @@
-const {app, BrowserWindow, shell, ipcMain, dialog, Menu, Tray} = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog, Menu, Tray } = require('electron');
 const path = require('path');
-const {authenticate, create, updateInfo, cleanQuit} = require(path.join(__dirname, 'telegram-binder', 'index.js'))
+const { authenticate, create, updateInfo, cleanQuit } = require(path.join(__dirname, 'telegram-binder', 'index.js'))
 
 // Auto updates
 const { autoUpdater } = require("electron-updater")
@@ -56,7 +56,7 @@ app.on('ready', async () => {
     }
 
     const contextMenu = Menu.buildFromTemplate([
-        { label: 'Show', click: async _ => {(await mainWindow).show()}},
+        { label: 'Show', click: async _ => { (await mainWindow).show() } },
         { label: 'Quit', click: app.quit }
     ])
 
@@ -92,8 +92,8 @@ app.on('window-all-closed', _ => {
 app.on('before-quit', async _ => {
     // We need to finish the queue, flush the tdlib ram, and make the window close instead of hide
     app.quitting = true
-    ;(await mainWindow).show()
-    ;(await mainWindow).webContents.send('quit')
+        ; (await mainWindow).show()
+        ; (await mainWindow).webContents.send('quit')
     await cleanQuit()
     await client.api.close()
     require('electron-log').info("[AIRGRAM CLEAN]")
