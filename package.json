@@ -63,7 +63,7 @@
         "chokidar": "^3.4.2",
         "electron-log": "latest",
         "electron-store": "latest",
-        "electron-updater": "^4.3.4",
+        "electron-updater": "^4.3.5",
         "ncp": "latest"
     },
     "description": "An app that lets you automatically backup to Telegram Saved Messages",
