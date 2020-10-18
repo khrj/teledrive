@@ -55,7 +55,7 @@ TeleDriveSync ---- ----- Folder1 ----- MyFile1.txt
 - Watch a folder for changes and automatically reupload when files are changed
 - Preserve folder structure when restoring using TeleDrive
 - Uses a master file for quickly finding messages and file versioning
-- SHA252 based file versioning
+- SHA256 based file versioning
 - Queue viewer for uploads
 - Built in conflict resolver
   - When there's a newer file on Saved Messages but you're trying to backup

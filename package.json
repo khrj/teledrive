@@ -5,7 +5,7 @@
     },
     "dependencies": {
         "airgram": "latest",
-        "chokidar": "^3.4.2",
+        "chokidar": "^3.4.3",
         "electron-log": "latest",
         "electron-store": "latest",
         "electron-updater": "^4.3.4",
