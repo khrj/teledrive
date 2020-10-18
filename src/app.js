@@ -9,32 +9,16 @@ autoUpdater.checkForUpdatesAndNotify()
 let mainWindow
 const createWindow = async () => {
     mainWindow = new Promise(async resolve => {
-        let window
-        if (process.platform === 'darwin') {
-            window = new BrowserWindow({
-                width: 400,
-                height: 650,
-                minWidth: 400,
-                minHeight: 600,
-                titleBarStyle: 'hiddenInset',
-                webPreferences: {
-                    nodeIntegration: true
-                },
-                vibrancy: 'under-window',
-                transparent: true
-            })
-        } else {
-            window = new BrowserWindow({
-                width: 400,
-                height: 650,
-                minWidth: 400,
-                minHeight: 600,
-                titleBarStyle: 'hiddenInset',
-                webPreferences: {
-                    nodeIntegration: true
-                }
-            })
-        }
+        let window = new BrowserWindow({
+            width: 400,
+            height: 650,
+            minWidth: 400,
+            minHeight: 600,
+            titleBarStyle: 'hiddenInset',
+            webPreferences: {
+                nodeIntegration: true
+            }
+        })
 
         window.removeMenu()
 

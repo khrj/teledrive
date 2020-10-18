@@ -13,10 +13,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const syncButton = document.getElementById('reDownload')
     const queueButton = document.getElementById('queueButton')
 
-    if (process.platform === 'darwin') {
-        profile.style.border = '1px solid #a0a0a0'
-    }
-
     let queue = [];
     const queueList = document.createElement('div')
     queueList.id = "queueList"
@@ -30,13 +26,8 @@ window.addEventListener('DOMContentLoaded', () => {
         input.type = ''
         input.classList.remove('shake-horizontal')
         input.offsetHeight // Triggers Reflow
+        input.style.border = "1px solid #c4c4c4"
         title.innerHTML = 'Sign in to TeleDrive'
-        if (process.platform === 'darwin') {
-            input.style.backgroundColor = 'transparent'
-            input.style.border = '1px solid #a0a0a0'
-        } else {
-            input.style.border = "1px solid #c4c4c4"
-        }
     }
 
     let retriedOnce = {
