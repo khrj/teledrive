@@ -91,7 +91,7 @@ window.addEventListener('DOMContentLoaded', () => {
             })
 
             if (choice) {
-                await shell.openExternal('https://www.khushrajrathod.me/TeleDrive/docs/')
+                await shell.openExternal('https://teledrive.khushrajrathod.me/docs/')
             }
 
             if (!message.isRetry) {
