@@ -25,7 +25,7 @@ module.exports = {
             },
             {
                 text: 'Download',
-                link: 'https://www.khushrajrathod.me/TeleDrive'
+                link: 'https://teledrive.khushrajrathod.me/'
             }
         ],
         sidebar: {
@@ -61,5 +61,5 @@ module.exports = {
         '@vuepress/plugin-medium-zoom',
     ],
     dest: '../website/docs/',
-    base: '/TeleDrive/docs/'
+    base: '/docs/'
 }

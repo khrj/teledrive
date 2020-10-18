@@ -4,7 +4,7 @@ AppX is still a work in progress
 
 ## Executable installer (NSIS)
 
-- Go to the [homepage](https://www.khushrajrathod.me/TeleDrive)
+- Go to the [homepage](https://teledrive.khushrajrathod.me)
 - Select 'Download for Windows' (Or select the dropdown > Windows (Executable Installer))
 
 - Run the installer by double-clicking it

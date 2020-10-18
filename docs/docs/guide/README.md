@@ -7,4 +7,4 @@ Select your operating system:
 - [macOS](./macOS/)
 - [Linux](./linux/)
 
-Not sure? [Go to the homepage](https://www.khushrajrathod.me/TeleDrive/) and click "Download for Windows/macOS/Linux" to install TeleDrive.
+Not sure? [Go to the homepage](https://teledrive.khushrajrathod.me/) and click "Download for Windows/macOS/Linux" to install TeleDrive.

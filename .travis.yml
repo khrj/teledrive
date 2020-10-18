@@ -39,6 +39,17 @@ script:
         cd docs
         yarn
         yarn build
+        cd ..
+        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+        git fetch origin
+        mv website ..
+        git checkout vercel
+        rm -rf ./*
+        mv ../website/* .
+        git add .
+        git commit --amend --no-edit
+        git remote set-url origin https://KhushrajRathod:$GITHUB_TOKEN@github.com/KhushrajRathod/TeleDrive.git
+        git push -f
     fi
 
 addons:
@@ -49,13 +60,3 @@ addons:
   snaps:
     - name: snapcraft
       confinement: classic
-
-deploy:
-  provider: pages
-  token: $GITHUB_TOKEN
-  strategy: git
-  local_dir: website
-  skip_cleanup: true
-  on:
-    branch: main
-    condition: $TRAVIS_OS_NAME = linux
