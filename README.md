@@ -3,12 +3,12 @@
 > TeleDrive lets you automatically backup ANY files to Telegram Saved Messages - this means **UNLIMITED** storage, as long as each file is under 2GB
 
 <div align="center">
-<a href="https://teledrive.khushrajrathod.me/latest/linux">
+<a href="https://teledrive.khushrajrathod.me/api/?type=AppImage">
   <img alt="Download as an AppImage" src="icon/vector/download-appimage.svg" />
 </a>
 
 Download links: <br>
-<a href="https://teledrive.khushrajrathod.me/latest/windows">Windows (NSIS)</a> --- <a href="https://teledrive.khushrajrathod.me/latest/macOS">macOS (DMG)</a>
+<a href="https://teledrive.khushrajrathod.me/api/?type=exe">Windows (NSIS)</a> --- <a href="https://teledrive.khushrajrathod.me/api/?type=dmg">macOS (DMG)</a>
 </div>
 
 ---
