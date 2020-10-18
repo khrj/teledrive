@@ -1,0 +1,45 @@
+section.features .feature-item i {
+  background: linear-gradient(270deg, #00f260, #0575e6);
+  -webkit-background-clip: text;
+}
+
+#mainNav .navbar-brand {
+  color: #fff;
+}
+
+.button-part:hover, .button-part:active, .button-part:focus {
+  background-color: #66bb6a;
+  transition: 0.2s;
+}
+
+#download:hover, #download:active, #download:focus {
+  background-color: initial;
+}
+
+#dropdown:hover #platform-list, #dropdown:active #platform-list, #dropdown:focus #platform-list {
+  display: flex;
+}
+
+#platform-list {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  margin-top: 200px;
+}
+
+#platform-list > a {
+  width: 100%;
+  height: 50px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+}
+
+#platform-list > a {
+  background-color: #f1f1f1;
+}
+
