@@ -90,3 +90,6 @@ dist/
 
 # Idea
 .idea/workspace.xml
+
+# Built website
+website-build

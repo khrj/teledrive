@@ -60,6 +60,6 @@ module.exports = {
         '@vuepress/plugin-back-to-top',
         '@vuepress/plugin-medium-zoom',
     ],
-    dest: '../website/docs/',
+    dest: '../website-build/docs/',
     base: '/docs/'
 }

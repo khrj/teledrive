@@ -30,27 +30,12 @@ before_install:
 
 script:
   - |
-    if [ -n "$TRAVIS_TAG" ]; then
-        if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-            echo $SNAP_TOKEN | snapcraft login --with -
-        fi
-        yarn dist
-    elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
-        cd docs
-        yarn
-        yarn build
-        cd ..
-        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-        git fetch origin
-        mv website ..
-        git checkout vercel
-        rm -rf ./*
-        mv ../website/* .
-        git add .
-        git commit --amend --no-edit
-        git remote set-url origin https://KhushrajRathod:$GITHUB_TOKEN@github.com/KhushrajRathod/TeleDrive.git
-        git push -f
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        echo $SNAP_TOKEN | snapcraft login --with -
     fi
+    yarn dist
+
+if: tag IS present
 
 addons:
   apt:

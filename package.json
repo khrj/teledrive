@@ -31,7 +31,8 @@
     "scripts": {
         "pack": "electron-builder --dir",
         "dist": "electron-builder",
-        "start": "electron ."
+        "start": "electron .",
+        "vercel-build": "rm -rf website-build && cp -rf website/out website-build && (cd docs/ && yarn && yarn build)"
     },
     "version": "1.1.1"
 }
