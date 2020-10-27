@@ -2,6 +2,7 @@ module.exports = {
     appId: 'me.khushrajrathod.teledrive',
     productName: 'TeleDrive',
     copyright: 'Copyright © 2020 Khushraj Rathod',
+    artifactName: "${productName}-${version}-${arch}.${ext}",
     directories: {
         buildResources: 'icon'
     },
