@@ -12,10 +12,10 @@
   resolved "https://registry.yarnpkg.com/@airgram/constants/-/constants-3.0.0.tgz#9190e9a27eee085a3ac3a91ceb09626bb1bffadc"
   integrity sha512-xm/hhvs6gnN+zuqeuQ+wk+qQd7A7pdVtziyV09eyWtRM7J7IUD4uDZoP9I3gQxbO3g23W/j4/2J+1Fvc8LEP7w==
 
-"@airgram/core@^3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@airgram/core/-/core-3.1.1.tgz#e5cdf165027b1bd30be533ba5276c60bf66c0802"
-  integrity sha512-pePm024Hg9J/8GDqXFvJ5NVpD3/UjK8n05DV0t2LkztCT5bv/+LHePNgFFNeMCfk0wH5Te5FjiQN2aJe5yCrIg==
+"@airgram/core@^3.2.1":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@airgram/core/-/core-3.2.1.tgz#12d64cd3e4f71b2f6007c1ddf9b4eceac47fd17a"
+  integrity sha512-WkEOOV2hQwTJZkLgf2K650et/OI20K5Y58D5cnPexyiIn8zpA/npWq0iCzFSrTYQOUKb8IvBhbfd2xiuPUGf8w==
 
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
@@ -100,12 +100,12 @@
     "@types/yargs-parser" "*"
 
 airgram@latest:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/airgram/-/airgram-3.1.1.tgz#3064f6d084db867451713701a4c2e334d3d100bf"
-  integrity sha512-fuKxEaEXw66LatGa/c6j0B0RXT8JcGVsogXYBygmRB/M4TBFJbNwnVq7jp1UF59le6JaawgUH7hLRqCuR1WuhA==
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/airgram/-/airgram-3.2.3.tgz#f9ae7f353aec4e6e2b62449796e1d0c81564a9c2"
+  integrity sha512-PuuXKBYQfH+iRzqAW9k8DPajIqCqOfJI9qReOXv2VkmS6CSIiThausa//vyA7ps+q8XRovmUjNZWZvFSkXSErg==
   dependencies:
     "@airgram/constants" "^3.0.0"
-    "@airgram/core" "^3.1.1"
+    "@airgram/core" "^3.2.1"
     ffi-napi "^3.0.0"
 
 ajv-keywords@^3.4.1:
