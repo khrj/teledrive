@@ -7,15 +7,15 @@
   resolved "https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.0.3.tgz#bc5b5532ecafd923a61f2fb097e3b108c0106a3f"
   integrity sha512-GLyWIFBbGvpKPGo55JyRZAo4lVbnBiD52cKlw/0Vt+wnmKvWJkpZvsjVoaIolyBXDeAQKSicRtqFNPem9w0WYA==
 
-"@airgram/constants@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@airgram/constants/-/constants-3.0.0.tgz#9190e9a27eee085a3ac3a91ceb09626bb1bffadc"
-  integrity sha512-xm/hhvs6gnN+zuqeuQ+wk+qQd7A7pdVtziyV09eyWtRM7J7IUD4uDZoP9I3gQxbO3g23W/j4/2J+1Fvc8LEP7w==
+"@airgram/constants@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@airgram/constants/-/constants-3.1.0.tgz#9129358975814bd8e73515ce2552547a900f9dcd"
+  integrity sha512-6PmgACxQ/sxvNLKpJLLSpQFEIIUqWOXLhOOiTn5xJr1VA4t7b3/aYRDWf1gZTuU/ufQwtb2URX1Fbkpmnziudg==
 
-"@airgram/core@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@airgram/core/-/core-3.2.1.tgz#12d64cd3e4f71b2f6007c1ddf9b4eceac47fd17a"
-  integrity sha512-WkEOOV2hQwTJZkLgf2K650et/OI20K5Y58D5cnPexyiIn8zpA/npWq0iCzFSrTYQOUKb8IvBhbfd2xiuPUGf8w==
+"@airgram/core@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@airgram/core/-/core-4.0.0.tgz#e641b777e298d07f1e3dd2f5d5fbf02c56e441b0"
+  integrity sha512-jhhiG4rPIJ+o4/XQHOvhkok/aObj42g8XOJYtS645Wh8ptPXfXY8GfuuayFCD20pV2ISRiKR2G4MXGlzbwWX1g==
 
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
@@ -100,12 +100,12 @@
     "@types/yargs-parser" "*"
 
 airgram@latest:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/airgram/-/airgram-3.2.3.tgz#f9ae7f353aec4e6e2b62449796e1d0c81564a9c2"
-  integrity sha512-PuuXKBYQfH+iRzqAW9k8DPajIqCqOfJI9qReOXv2VkmS6CSIiThausa//vyA7ps+q8XRovmUjNZWZvFSkXSErg==
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/airgram/-/airgram-4.0.0.tgz#8ad2791b475d1781e3bb53fc66f5d217540e135f"
+  integrity sha512-2eCAF+oV7/d2JYhkCa6lt5QzI7dEJfwR15ajJp+d9aNkvd1Uyxe2V5XtSjV62eXQUA6bwtHqXn76nTgOGmbIjA==
   dependencies:
-    "@airgram/constants" "^3.0.0"
-    "@airgram/core" "^3.2.1"
+    "@airgram/constants" "^3.1.0"
+    "@airgram/core" "^4.0.0"
     ffi-napi "^3.0.0"
 
 ajv-keywords@^3.4.1:
