@@ -622,9 +622,9 @@ electron-builder@latest:
     yargs "^16.0.3"
 
 electron-log@latest:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.3.1.tgz#1405fef9d4e6964a5fdb8790a69163aa237ffe91"
-  integrity sha512-S/0CMjYjgyWUsZ3d27VvErPaI5W4oILp4jfeCuN4DhDqrJW6jKRUD2PxFfTdeZEIjM7+fttGg7A61rPcAcZC1w==
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.3.3.tgz#84f37795b916e1801e7dcd66d21cb59f5a1a60a8"
+  integrity sha512-WNPZm56O6YAxdQ2ESTaYr6nEid+jqobNjHMuDCfY2l76uPwz5UBOO+8sGv0XeXG8IQvygcagcwjpVuK9/IggYg==
 
 electron-publish@22.9.1:
   version "22.9.1"
