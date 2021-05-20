@@ -1,6 +1,6 @@
 {
   "name": "TeleDrive-Documentation",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TeleDrive lets you automatically backup all your files to telegram's saved messages. This means free, unlimited storage",
   "main": "index.js",
   "authors": {
@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.3.1",
-    "@vuepress/plugin-back-to-top": "^1.3.1",
-    "@vuepress/plugin-medium-zoom": "^1.3.1"
+    "vuepress": "1.5.3",
+    "@vuepress/plugin-back-to-top": "1.5.3",
+    "@vuepress/plugin-medium-zoom": "1.5.3"
   }
 }
