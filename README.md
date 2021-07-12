@@ -17,7 +17,7 @@ Alternatively, for macOS, install using [homebrew](https://brew.sh/)
 ```bash
 brew cask install --no-quarantine khushrajrathod/teledrive/teledrive
 ```
-> See [code signing](https://github.com/KhushrajRathod/TeleDrive/issues/10) for more info on why --no-quarantine is used
+> See [code signing](https://github.com/khrj/TeleDrive/issues/10) for more info on why --no-quarantine is used
 
 # Screenshots
 
@@ -63,7 +63,7 @@ TeleDriveSync ---- ----- Folder1 ----- MyFile1.txt
 # Running from source
 1. Clone repository:
 ```bash
-git clone https://github.com/KhushrajRathod/TeleDrive
+git clone https://github.com/khrj/TeleDrive
 cd TeleDrive
 ```
 

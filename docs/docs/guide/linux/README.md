@@ -1,7 +1,7 @@
 # Linux
 ## AppImage
 
-[![Download as an AppImage banner](https://raw.githubusercontent.com/KhushrajRathod/TeleDrive/main/icon/vector/download-appimage.svg)](https://teledrive.khushrajrathod.me/api/?type=AppImage)
+[![Download as an AppImage banner](https://raw.githubusercontent.com/khrj/teledrive/main/icon/vector/download-appimage.svg)](https://teledrive.khushrajrathod.me/api/?type=AppImage)
 
 Alternatively:
 - Go to the [homepage](https://teledrive.khushrajrathod.me)

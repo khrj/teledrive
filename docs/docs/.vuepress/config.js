@@ -9,7 +9,7 @@ module.exports = {
         ['meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'black'}]
     ],
     themeConfig: {
-        repo: 'KhushrajRathod/TeleDrive',
+        repo: 'khrj/teledrive',
         editLinks: true,
         docsDir: 'vuepress-documentation/docs',
         editLinkText: 'Help us improve this page',

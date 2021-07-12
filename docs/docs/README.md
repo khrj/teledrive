@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: https://raw.githubusercontent.com/KhushrajRathod/TeleDrive/main/icon/icon.png
+heroImage: https://raw.githubusercontent.com/khrj/teledrive/main/icon/icon.png
 tagline: TeleDrive lets you automatically backup all your files to telegram's saved messages. This means free, unlimited storage
 actionText: Quick Start →
 actionLink: /guide/

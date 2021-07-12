@@ -16,7 +16,7 @@
         "electron": "12.0.9",
         "electron-builder": "latest"
     },
-    "homepage": "https://khushrajrathod.github.io/TeleDrive",
+    "homepage": "https://teledrive.khushrajrathod.com",
     "keywords": [
         "TeleDrive",
         "telegram",
@@ -27,7 +27,7 @@
     "main": "src/app.js",
     "name": "teledrive",
     "productName": "TeleDrive",
-    "repository": "https://github.com/KhushrajRathod/TeleDrive",
+    "repository": "https://github.com/khrj/teledrive",
     "scripts": {
         "pack": "electron-builder --dir",
         "dist": "electron-builder",

@@ -4,7 +4,7 @@ module.exports = async (req, res) => {
         let url = await getRelease(
             {
                 provider: "github",
-                user: "KhushrajRathod",
+                user: "khrj",
                 repo: "TeleDrive",
                 part: req.query.type
             }
