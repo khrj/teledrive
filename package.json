@@ -13,7 +13,7 @@
     },
     "description": "An app that lets you automatically backup to Telegram Saved Messages",
     "devDependencies": {
-        "electron": "12.0.9",
+        "electron": "18.3.7",
         "electron-builder": "latest"
     },
     "homepage": "https://teledrive.khushrajrathod.com",
